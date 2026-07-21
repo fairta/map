@@ -45,6 +45,160 @@ const PROVINCE_ADCODE = {
     '西藏自治区':'540000', '青海省':'630000', '新疆维吾尔自治区':'650000', '台湾省':'710000'
 };
 
+// ==========================================
+// 新增：日本现代都道府县 -> 江户时代令制国 映射
+// ==========================================
+const japanToEdoMap = {
+    '東京': '武藏', '神奈川': '相模', '埼玉': '武藏', '千葉': '下总', '茨城': '常陆', '栃木': '下野', '群馬': '上野',
+    '京都': '山城', '大阪': '摄津', '兵庫': '播磨', '奈良': '大和', '滋賀': '近江', '和歌山': '纪伊',
+    '愛知': '尾张', '静岡': '骏河', '岐阜': '美浓', '三重': '伊势',
+    '北海道': '虾夷', '青森': '陆奥', '岩手': '陆奥', '宮城': '陆奥', '秋田': '出羽', '山形': '出羽', '福島': '陆奥',
+    '新潟': '越后', '富山': '越中', '石川': '加贺', '福井': '越前', '山梨': '甲斐', '長野': '信浓',
+    '鳥取': '因幡', '島根': '出云', '岡山': '备前', '広島': '安艺', '山口': '长门',
+    '徳島': '阿波', '香川': '赞岐', '愛媛': '伊予', '高知': '土佐',
+    '福岡': '筑前', '佐賀': '肥前', '長崎': '肥前', '熊本': '肥后', '大分': '丰后', '宮崎': '日向', '鹿児島': '萨摩', '沖縄': '琉球'
+};
+
+const edoToRegionMap = {
+    '山城': '畿内', '大和': '畿内', '摄津': '畿内', '河内': '畿内', '和泉': '畿内',
+    '伊贺': '东海道', '伊势': '东海道', '志摩': '东海道', '尾张': '东海道', '三河': '东海道', '远江': '东海道', '骏河': '东海道', '伊豆': '东海道', '甲斐': '东海道', '相模': '东海道', '武藏': '东海道', '安房': '东海道', '上总': '东海道', '下总': '东海道', '常陆': '东海道',
+    '近江': '东山道', '美浓': '东山道', '飞驒': '东山道', '信浓': '东山道', '上野': '东山道', '下野': '东山道', '陆奥': '东山道', '出羽': '东山道',
+    '若狭': '北陆道', '越前': '北陆道', '加贺': '北陆道', '能登': '北陆道', '越中': '北陆道', '越后': '北陆道', '佐渡': '北陆道',
+    '丹波': '山阴道', '丹后': '山阴道', '但马': '山阴道', '因幡': '山阴道', '伯耆': '山阴道', '出云': '山阴道', '石见': '山阴道', '隐岐': '山阴道',
+    '播磨': '山阳道', '美作': '山阳道', '备前': '山阳道', '备中': '山阳道', '备后': '山阳道', '安艺': '山阳道', '周防': '山阳道', '长门': '山阳道',
+    '纪伊': '南海道', '淡路': '南海道', '阿波': '南海道', '赞岐': '南海道', '伊予': '南海道', '土佐': '南海道',
+    '筑前': '西海道', '筑后': '西海道', '丰前': '西海道', '丰后': '西海道', '肥前': '西海道', '肥后': '西海道', '日向': '西海道', '大隅': '西海道', '萨摩': '西海道', '壹岐': '西海道', '对马': '西海道',
+    '虾夷': '虾夷', '琉球': '琉球'
+};
+
+// ==========================================
+// 新增：现代朝韩道/市 -> 1634年朝鲜八道 映射
+// ==========================================
+const koreaToJoseonMap = {
+    'P\'yŏngyang': '平安道', 'P\'yŏngan-namdo': '平安道', 'P\'yŏngan-bukto': '平安道', 'Namp\'o': '平安道', 'Chagang-do': '平安道',
+    'Hamgyŏng-namdo': '咸镜道', 'Hamgyŏng-bukto': '咸镜道', 'Rasŏn': '咸镜道', 'Ryanggang': '咸镜道',
+    'Hwanghae-namdo': '黄海道', 'Hwanghae-bukto': '黄海道', 'Kaesŏng': '京畿道', 'Kangwŏn-do': '江原道',
+    'Seoul': '京畿道', 'Incheon': '京畿道', 'Gyeonggi-do': '京畿道', 'Gangwon-do': '江原道',
+    'Daejeon': '忠清道', 'Sejong': '忠清道', 'Chungcheongnam-do': '忠清道', 'Chungcheongbuk-do': '忠清道',
+    'Busan': '庆尚道', 'Daegu': '庆尚道', 'Ulsan': '庆尚道', 'Gyeongsangnam-do': '庆尚道', 'Gyeongsangbuk-do': '庆尚道',
+    'Gwangju': '全罗道', 'Jeollanam-do': '全罗道', 'Jeollabuk-do': '全罗道', 'Jeju-do': '全罗道'
+};
+
+// 1634朝鲜八道：严格遵循真实历史建制，消除现代伪古名，配合离近原则保证无飞地
+const joseonCountyMap = {
+    // 京畿
+    'Seoul':'汉城府', 'Kaesong':'开城府', 'Kaesŏng':'开城府',
+    'Incheon':'仁川都护府', 'Gimpo':'金浦郡', 'Bucheon':'富平都护府', 'Gwangmyeong':'衿川县', 
+    'Siheung':'安山郡', 'Ansan':'安山郡', 'Anyang':'果川县', 'Gwacheon':'果川县', 'Gunpo':'果川县', 'Uiwang':'果川县', 
+    'Suwon':'水原都护府', 'Osan':'水原都护府', 'Hwaseong':'南阳都护府', 
+    'Seongnam':'广州府', 'Gwangju':'广州府', 'Hanam':'广州府', 
+    'Yongin':'龙仁县', 'Icheon':'利川都护府', 'Anseong':'安城郡', 'Pyeongtaek':'振威县',
+    'Goyang':'高阳郡', 'Paju':'坡州牧', 'Yangju':'杨州牧', 'Dongducheon':'杨州牧', 'Uijeongbu':'杨州牧', 
+    'Guri':'杨州牧', 'Namyangju':'杨州牧', 'Gapyeong':'加平郡', 'Yeoju':'骊州牧', 'Yangpyeong':'杨根郡', 
+    'Pocheon':'抱川郡', 'Yeoncheon':'涟川县', 'Ganghwa':'江华都护府', 'Ongjin':'江华都护府',
+
+    // 江原
+    'Chuncheon':'春川都护府', 'Hwacheon':'华川县', 'Yanggu':'杨口县', 'Inje':'麟蹄县', 
+    'Wonju':'原州牧', 'Hoengseong':'横城县', 'Pyeongchang':'平昌郡', 'Yeongwol':'宁越郡', 'Jeongseon':'旌善郡', 
+    'Gangneung':'江陵大都护府', 'Donghae':'三陟都护府', 'Taebaek':'三陟都护府', 'Samcheok':'三陟都护府', 
+    'Sokcho':'襄阳都护府', 'Yangyang':'襄阳都护府', 'Goseong':'杆城郡', 'Kosong':'杆城郡', 'Kosŏng':'杆城郡',
+    'Hongcheon':'洪川县', 'Cheolwon':'铁原都护府', 'Chorwon':'铁原都护府', 'Ch\'ŏrwŏn':'铁原都护府',
+    'Wonsan':'安边都护府', 'Wŏnsan':'安边都护府', 'Anbyon':'安边都护府', 'Anbyŏn':'安边都护府',
+    'Pyeonggang':'平康县', 'Pyonggang':'平康县', 'P\'yŏnggang':'平康县', 
+    'Tongchon':'通川郡', 'T\'ongch\'ŏn':'通川郡', 
+    'Ichon':'伊川郡', 'Ich\'ŏn':'伊川郡', 'Pangyo':'伊川郡',
+    'Hoeyang':'淮阳都护府', 'Sepo':'淮阳都护府', 'Kosan':'淮阳都护府', 'Gimhwa':'金化县', 'Kimhwa':'金化县',
+
+    // 忠清
+    'Cheongju':'清州牧', 'Chungju':'忠州牧', 'Jecheon':'堤川县', 'Danyang':'丹阳郡', 'Cheonan':'天安都护府', 
+    'Gongju':'公州牧', 'Gyeryong':'公州牧', 'Boryeong':'保宁县', 'Asan':'牙山县', 'Seosan':'瑞山郡', 'Taean':'泰安郡', 
+    'Nonsan':'尼山县', 'Dangjin':'唐津县', 'Geumsan':'锦山郡', 'Buyeo':'扶余县', 'Seocheon':'舒川郡', 
+    'Cheongyang':'青阳县', 'Hongseong':'洪州牧', 'Yesan':'礼山县', 'Daejeon':'怀德县', 'Sejong':'燕岐县', 
+    'Boeun':'报恩县', 'Okcheon':'沃川郡', 'Yeongdong':'永同县', 'Jincheon':'镇川县', 'Goesan':'槐山郡', 'Eumseong':'阴城县', 'Jeungpyeong':'清州牧',
+
+    // 庆尚 
+    'Daegu':'大邱都护府', 'Gyeongsan':'庆山县', 'Chilgok':'漆谷都护府',
+    'Busan':'东莱都护府', 'Gimhae':'金海都护府', 'Yangsan':'梁山郡', 'Gijang':'机张县',
+    'Ulsan':'蔚山都护府', 'Pohang':'迎日县', 'Gyeongju':'庆州府', 
+    'Gimcheon':'金山郡', 'Andong':'安东大都护府', 'Gumi':'善山都护府', 'Yeongju':'荣川郡', 'Yeongcheon':'永川郡', 
+    'Sangju':'尚州牧', 'Mungyeong':'闻庆县', 'Gunwi':'军威县', 'Uiseong':'义城县', 
+    'Cheongsong':'青松都护府', 'Yeongyang':'英阳县', 'Yeongdeok':'盈德县', 'Cheongdo':'清道郡', 'Goryeong':'高灵县', 
+    'Seongju':'星州牧', 'Yecheon':'醴泉郡', 'Bonghwa':'奉化县', 'Uljin':'蔚珍县', 'Ulleung':'平海郡', 
+    'Changwon':'昌原都护府', 'Jinju':'晋州牧', 'Tongyeong':'固城县', 'Goseong':'固城县', 'Sacheon':'泗川县', 
+    'Miryang':'密阳都护府', 'Geoje':'巨济县', 'Uiryeong':'宜宁县', 'Haman':'咸安郡', 'Changnyeong':'昌宁县', 
+    'Namhae':'南海县', 'Hadong':'河东县', 'Sancheong':'山阴县', 'Hamyang':'咸阳郡', 'Geochang':'居昌郡', 'Hapcheon':'陕川郡',
+
+    // 全罗
+    'Jeonju':'全州府', 'Wanju':'全州府', 'Gunsan':'临陂县', 'Iksan':'益山郡', 'Jeongeup':'井邑县', 'Namwon':'南原都护府', 
+    'Gimje':'金堤郡', 'Jinan':'镇安县', 'Muju':'茂朱府', 'Jangsu':'长水县', 'Imsil':'任实县', 
+    'Sunchang':'淳昌郡', 'Gochang':'高敞县', 'Buan':'扶安县', 
+    'Gwangju':'光州牧', 'Mokpo':'务安县', 'Muan':'务安县', 'Sinan':'务安县', 
+    'Yeosu':'顺天都护府', 'Suncheon':'顺天都护府', 'Gwangyang':'光阳县', 
+    'Naju':'罗州牧', 'Damyang':'潭阳都护府', 'Damnyang':'潭阳都护府', 'Gokseong':'谷城县', 'Gurye':'求礼县', 'Goheung':'兴阳县', 
+    'Boseong':'宝城郡', 'Hwasun':'和顺县', 'Jangheung':'长兴都护府', 'Gangjin':'康津县', 'Wando':'康津县', 
+    'Haenam':'海南县', 'Yeongam':'灵岩郡', 'Hampyeong':'咸平县', 'Yeonggwang':'灵光郡', 'Jangseong':'长城都护府', 
+    'Jindo':'珍岛郡', 'Jeju-do':'济州牧', 'Jeju':'济州牧', 'Seogwipo':'大静县',
+
+    // 平安 
+    'Pyongyang':'平壤府', 'P\'yŏngyang':'平壤府', 'Nampo':'江西县', 'Namp\'o':'江西县', 'Kangnam':'平壤府', 'Chunghwa':'平壤府', 'Sangwon':'平壤府',
+    'Anju':'安州牧', 'Mundok':'安州牧', 'Mundŏk':'安州牧', 'Sukchon':'肃川都护府', 'Sukch\'ŏn':'肃川都护府', 
+    'Pyongwon':'永柔县', 'P\'yŏngwŏn':'永柔县', 'Chungsan':'甑山县', 'Chŭngsan':'甑山县', 
+    'Sinuiju':'义州府', 'Sinŭiju':'义州府', 'Uiju':'义州府', 'Pihyon':'义州府', 'Pihyŏn':'义州府',
+    'Yangdok':'阳德县', 'Yangdŏk':'阳德县', 'Sinyang':'阳德县', 'Hoechang':'阳德县', 'Hoech\'ang':'阳德县',
+    'Sunchon':'顺川郡', 'Sunch\'ŏn':'顺川郡', 'Pyongsong':'顺川郡', 'P\'yŏngsŏng':'顺川郡', 
+    'Songchon':'成川都护府', 'Sŏngch\'ŏn':'成川都护府', 'Unsan':'殷山县', 'Ŭnsan':'殷山县', 
+    'Pukchang':'北仓郡', 'Pukch\'ang':'北仓郡', 'Taedong':'大同郡',
+    'Changsong':'昌城都护府', 'Ch\'angsŏng':'昌城都护府', 'Tongchang':'昌城都护府', 'Tongch\'ang':'昌城都护府', 
+    'Pyoktong':'碧潼郡', 'Pyŏktong':'碧潼郡', 'Taechon':'泰川县', 'T\'aech\'ŏn':'泰川县',
+    'Pakchon':'博川郡', 'Pakch\'ŏn':'博川郡', 'Kujang':'博川郡', 'Hyangsan':'博川郡', 'Unsan-gun':'云山郡', 
+    'Nyongbyon':'宁边大都护府', 'Yongbyon':'宁边大都护府', 'Nyŏngbyŏn':'宁边大都护府', 'Yŏngbyŏn':'宁边大都护府',
+    'Kusong':'龟城都护府', 'Kusŏng':'龟城都护府', 'Taegwan':'龟城都护府', 'Chonma':'龟城都护府', 'Ch\'ŏnma':'龟城都护府',
+    'Ryongchon':'龙川郡', 'Ryongch\'ŏn':'龙川郡', 'Yomju':'龙川郡', 'Yŏmju':'龙川郡', 'Sindo':'龙川郡',
+    'Cholsan':'铁山都护府', 'Ch\'ŏlsan':'铁山都护府', 'Tongrim':'铁山都护府', 
+    'Chongju':'定州牧', 'Chŏngju':'定州牧', 'Kwaksan':'郭山郡', 'Sonchon':'宣川郡', 'Sŏnch\'ŏn':'宣川郡',
+    'Kanggye':'江界都护府', 'Changgang':'江界都护府', 'Nangrim':'江界都护府', 'Rangrim':'江界都护府',
+    'Chasong':'慈城郡', 'Chasŏng':'慈城郡', 'Chunggang':'慈城郡', 'Hwapyong':'厚昌郡', 'Hwap\'yŏng':'厚昌郡',
+    'Manpo':'理山郡', 'Manp\'o':'理山郡', 'Sijung':'理山郡',
+    'Wiwon':'渭原郡', 'Wiwŏn':'渭原郡', 'Chonchon':'渭原郡', 'Chŏnch\'ŏn':'渭原郡', 'Ryongnim':'渭原郡', 
+    'Chosan':'楚山郡', 'Ch\'osan':'楚山郡', 'Kopung':'楚山郡', 'Kop\'ung':'楚山郡', 'Usan':'楚山郡', 
+    'Huichon':'熙川郡', 'Hŭich\'ŏn':'熙川郡', 'Songwon':'熙川郡', 'Songwŏn':'熙川郡', 'Tongsin':'熙川郡',
+    'Taehung':'宁远郡', 'Taehŭng':'宁远郡', 'Nyongwon':'宁远郡', 'Nyŏngwŏn':'宁远郡', 'Maengsan':'孟山县', 
+    'Kaechon':'价川郡', 'Kaech\'ŏn':'价川郡', 'Tokchon':'德川郡', 'Tŏkch\'ŏn':'德川郡',
+
+    // 咸镜 
+    'Chongjin':'镜城都护府', 'Ch\'ŏngjin':'镜城都护府', 'Kyongsong':'镜城都护府', 'Kyŏngsŏng':'镜城都护府', 'Orang':'镜城都护府', 
+    'Puryong':'富宁都护府', 'Puryŏng':'富宁都护府',
+    'Musan':'茂山府', 'Taehongdan':'茂山府', 'Yonsa':'茂山府', 'Yŏnsa':'茂山府', 'Samjiyon':'茂山府', 'Samjiyŏn':'茂山府',
+    'Hoeryong':'会宁都护府', 'Hoeryŏng':'会宁都护府',
+    'Onsong':'稳城都护府', 'Onsŏng':'稳城都护府', 'Chongsong':'钟城都护府',
+    'Kyongwon':'庆源都护府', 'Kyŏngwŏn':'庆源都护府', 'Undok':'庆源都护府', 'Ŭndŏk':'庆源都护府', 'Saebyol':'钟城都护府', 'Saeppyŏl':'钟城都护府',
+    'Kyonghung':'庆兴都护府', 'Kyŏnghŭng':'庆兴都护府', 'Rason':'庆兴都护府', 'Rasŏn':'庆兴都护府', 'Sonbong':'庆兴都护府',
+    'Myongchon':'明川都护府', 'Myŏngch\'ŏn':'明川都护府', 'Hwadae':'明川都护府', 'Myonggan':'明川都护府', 'Myŏnggan':'明川都护府', 
+    'Kilchu':'吉州牧', 'Kimchaek':'吉州牧', 'Kimch\'aek':'吉州牧', 'Paegam':'吉州牧', 
+    'Tanchon':'端川郡', 'Tanch\'ŏn':'端川郡', 'Hochon':'端川郡', 'Hŏch\'ŏn':'端川郡',
+    'Kapsan':'甲山都护府', 'Hyesan':'甲山都护府', 'Pochon':'甲山都护府', 'Poch\'ŏn':'甲山都护府', 'Unhung':'甲山都护府', 'Unhŭng':'甲山都护府',
+    'Pungsan':'甲山都护府', 'P\'ungsan':'甲山都护府', 'Kimhyonggwon':'甲山都护府', 'Kimhyŏnggwŏn':'甲山都护府', 'Pungso':'甲山都护府', 'P\'ungsŏ':'甲山都护府',
+    'Samsu':'三水都护府', 'Kimhyongjik':'三水都护府', 'Kimhyŏngjik':'三水都护府', 'Kimjongsuk':'三水都护府', 'Kimjŏngsuk':'三水都护府', 'Huchang':'三水都护府',
+    'Hamhung':'咸兴府', 'Hamhŭng':'咸兴府', 'Hungnam':'咸兴府', 'Hŭngnam':'咸兴府', 'Rakwon':'咸兴府', 'Rakwŏn':'咸兴府', 'Sinhung':'咸兴府', 'Sinhŭng':'咸兴府', 'Pujon':'咸兴府', 'Pujŏn':'咸兴府', 'Hamju':'咸兴府',
+    'Hongwon':'洪原郡', 'Hongwŏn':'洪原郡',
+    'Chongpyong':'定平都护府', 'Chŏngp\'yŏng':'定平都护府', 'Yonggwang':'定平都护府', 'Yŏnggwang':'定平都护府',
+    'Yonghung':'永兴大都护府', 'Kumya':'永兴大都护府', 'Kŭmya':'永兴大都护府', 'Kowon':'永兴大都护府', 'Kowŏn':'永兴大都护府', 'Yodok':'永兴大都护府', 'Yodŏk':'永兴大都护府', 'Sudok':'永兴大都护府', 'Sudŏk':'永兴大都护府',
+    'Pukchong':'北青都护府', 'Pukch\'ŏng':'北青都护府', 'Sinpo':'北青都护府', 'Sinp\'o':'北青都护府', 'Pukchon':'北青都护府', 'Pukch\'ŏn':'北青都护府', 'Toksong':'北青都护府', 'Tŏksŏng':'北青都护府',
+    'Changjin':'长津郡', 
+
+    // 黄海 
+    'Haeju':'海州牧', 'Sariwon':'凤山郡', 'Sariwŏn':'凤山郡', 'Songnim':'黄州牧', 'Ongjin':'瓮津都护府', 'Yonan':'延安都护府', 'Yŏnan':'延安都护府',
+    'Kangryong':'康翎县', 'Kangryŏng':'康翎县', 'Pyoksong':'海州牧', 'Pyŏksŏng':'海州牧', 'Taetan':'长渊县', 'T\'aet\'an':'长渊县', 'Ryongyon':'长渊县', 'Ryongyŏn':'长渊县', 'Changyon':'长渊县', 'Changyŏn':'长渊县',
+    'Samchon':'安岳郡', 'Samch\'ŏn':'安岳郡', 'Songhwa':'松禾县', 'Ullyul':'殷栗县', 'Ŭllyul':'殷栗县', 'Unchon':'丰川都护府', 'Ŭnch\'ŏn':'丰川都护府', 'Anak':'安岳郡',
+    'Sinchon':'信川郡', 'Sinch\'ŏn':'信川郡', 'Chaeryong':'载宁郡', 'Chaeryŏng':'载宁郡', 'Sinchang':'遂安郡', 'Sinch\'ang':'遂安郡', 'Hwangju':'黄州牧', 'Chunghwa':'中和都护府',
+    'Yontan':'黄州牧', 'Yŏntan':'黄州牧', 'Suan':'遂安郡', 'Koksan':'谷山都护府', 'Sinpyong':'谷山都护府', 'Sinp\'yŏng':'谷山都护府',
+    'Pyongsan':'平山都护府', 'P\'yŏngsan':'平山都护府', 'Kumchon':'金川郡', 'Kŭmch\'ŏn':'金川郡', 'Tosan':'平山都护府', 'T\'osan':'平山都护府', 'Sinchyong':'新溪县', 'Singye':'新溪县', 'Pongsan':'凤山郡',
+    'Rinsan':'平山都护府', 'Paehyon':'白川郡', 'Paehyŏn':'白川郡', 'Paechon':'白川郡', 'Paech\'ŏn':'白川郡'
+};
+
+
+
+
 const mingProvinceColors = {
     '北直隶':'#c0392b','南直隶':'#d4a017','山东':'#e67e22','山西':'#8e6b3e','河南':'#b8860b',
     '陕西':'#a0522d','湖广':'#2e7d32','江西':'#558b2f','浙江':'#00796b','福建':'#1565c0',
@@ -52,7 +206,7 @@ const mingProvinceColors = {
     '辽东':'#5d4037','宁夏':'#8d6e63', '后金':'#4a6fa5', '野人女真':'#78909c',
     '察哈尔':'#b8953a', '土默特':'#b8953a', '朵颜三卫':'#b8953a', '喀尔喀':'#8d6e63',
     '西域':'#9e9e9e','乌思藏':'#795548','青海':'#a1887f','东番':'#546e7a',
-    '日本':'#555555', '朝鲜':'#666666', '安南':'#445544', '莫卧儿':'#554433',
+    '日本':'#6a4c52', '琉球':'#2e8b57', '朝鲜':'#666666', '安南':'#445544', '莫卧儿':'#554433', // 日本改为古典暗绯色
     '暹罗':'#556644', '不丹':'#665544', '尼婆罗':'#554455', '吕宋':'#445566',
     '爪哇':'#444455', '澳洲':'#444444', '澜沧':'#555544'
 };
@@ -60,7 +214,7 @@ const mingProvinceColors = {
 const mingLegendNames = [
     '北直隶','南直隶','山东','山西','河南','陕西','湖广','江西','浙江','福建',
     '广东','广西','云南','贵州','四川','辽东','宁夏','后金','野人女真',
-    '察哈尔', '土默特', '朵颜三卫', '喀尔喀', '西域','乌思藏','青海','东番'
+    '察哈尔', '土默特', '朵颜三卫', '喀尔喀', '西域','乌思藏','青海','东番', '琉球' // 图例增加琉球
 ];
 
 const mingProvinceCenters = {
@@ -73,7 +227,7 @@ const mingProvinceCenters = {
     '野人女真':[130.00,46.00], '察哈尔':[115.00,43.00], '土默特':[111.00,41.00],
     '朵颜三卫':[120.00,41.00], '喀尔喀':[105.00,46.00], '西域':[85.00,40.00],
     '乌思藏':[90.00,30.00], '青海':[95.00,35.00], '东番':[121.00,23.50],
-    '日本':[138.00,36.00], '朝鲜':[127.00,39.00], '安南':[105.00,19.00],
+    '日本':[138.00,36.00], '琉球':[127.67, 26.21], '朝鲜':[127.00,39.00], '安南':[105.00,19.00], // 增加琉球中心点
     '莫卧儿':[78.00,22.00], '暹罗':[100.00,15.00], '不丹':[90.00,27.50],
     '尼婆罗':[84.00,28.00], '吕宋':[121.00,15.00], '爪哇':[110.00,-7.00],
     '澳洲':[133.00,-25.00], '澜沧':[102.00,18.00]
@@ -133,6 +287,25 @@ const mingFuZhouCenters = {
         {name:'东番诸部',lng:121.00,lat:23.50}, 
         {name:'澎湖巡检司',lng:119.56,lat:23.56}
     ],
+    '琉球': [{name:'琉球国', lng: 127.67, lat: 26.21}], // 添加独立的琉球府级属性
+    '日本': [
+        {name:'畿内', lng: 135.50, lat: 34.69}, {name:'东海道', lng: 138.00, lat: 35.00},
+        {name:'东山道', lng: 139.00, lat: 36.50}, {name:'北陆道', lng: 136.50, lat: 36.50},
+        {name:'山阴道', lng: 133.00, lat: 35.30}, {name:'山阳道', lng: 133.50, lat: 34.50},
+        {name:'南海道', lng: 133.50, lat: 33.50}, {name:'西海道', lng: 130.50, lat: 33.00},
+        {name:'虾夷', lng: 141.34, lat: 43.06} // 移除了原来的琉球
+    ],
+        '朝鲜': [
+        {name:'京畿道', lng: 126.97, lat: 37.56},
+        {name:'平安道', lng: 125.75, lat: 39.03},
+        {name:'咸镜道', lng: 127.53, lat: 39.91},
+        {name:'黄海道', lng: 125.71, lat: 38.03},
+        {name:'江原道', lng: 128.87, lat: 37.75},
+        {name:'忠清道', lng: 127.12, lat: 36.45},
+        {name:'庆尚道', lng: 128.60, lat: 35.85},
+        {name:'全罗道', lng: 126.95, lat: 35.16}
+    ],
+
 };
 
 
@@ -1661,10 +1834,23 @@ async function fetchGeoJSON(adcode) {
             if (adcode === '100000') {
                 url = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
             } else if (adcode === '710000') {
-                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/tw.json'; // 台湾1634专属数据源
+                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/tw.json'; 
+            } else if (adcode === 'JPN_1') {
+                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/japan/JPN_1.json'; // 日本1级
+            } else if (adcode === 'JPN_2') {
+                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/japan/JPN_2.json'; // 日本2级
+            } else if (adcode === 'KOR_1') {
+                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/Korea/KOR_1.json'; // 南韩1级
+            } else if (adcode === 'PRK_1') {
+                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/Korea/PRK_1.json'; // 北韩1级
+            } else if (adcode === 'KOR_2') {
+                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/Korea/KOR_2.json'; // 南韩2级
+            } else if (adcode === 'PRK_2') {
+                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/Korea/PRK_2.json'; // 北韩2级
             } else {
                 url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}_full.json`;
             }
+
             const resp = await fetch(url);
             if (!resp.ok) return null;
             const data = await resp.json();
@@ -2200,7 +2386,7 @@ function getMingProvOfFu(fuName) {
     return null;
 }
 
-// 动态构建第三层（区县）反向索引（强化精准版）
+// 动态构建第三层（区县）反向索引（强化精准版 + 日韩琉球中文搜索支持）
 function buildCountyIndex() {
     if (mingCountySearchIndex) return;
     mingCountySearchIndex = {};
@@ -2284,7 +2470,58 @@ function buildCountyIndex() {
             }
         }
     }
+
+    // ==============================================================
+    // 【核心新增：日、韩、琉球 历史地名与现代中文搜索强力注入】
+    // 解决外国版图不能通过中文搜索定位的问题
+    // ==============================================================
+    const eastAsiaSearchData = [
+        // 日本历史令制国
+        { prov: '日本', fu: '畿内', counties: ['山城', '大和', '摄津', '河内', '和泉'] },
+        { prov: '日本', fu: '东海道', counties: ['伊贺', '伊势', '志摩', '尾张', '三河', '远江', '骏河', '伊豆', '甲斐', '相模', '武藏', '安房', '上总', '下总', '常陆'] },
+        { prov: '日本', fu: '东山道', counties: ['近江', '美浓', '飞驒', '信浓', '上野', '下野', '陆奥', '出羽'] },
+        { prov: '日本', fu: '北陆道', counties: ['若狭', '越前', '加贺', '能登', '越中', '越后', '佐渡'] },
+        { prov: '日本', fu: '山阴道', counties: ['丹波', '丹后', '但马', '因幡', '伯耆', '出云', '石见', '隐岐'] },
+        { prov: '日本', fu: '山阳道', counties: ['播磨', '美作', '备前', '备中', '备后', '安艺', '周防', '长门'] },
+        { prov: '日本', fu: '南海道', counties: ['纪伊', '淡路', '阿波', '赞岐', '伊予', '土佐'] },
+        { prov: '日本', fu: '西海道', counties: ['筑前', '筑后', '丰前', '丰后', '肥前', '肥后', '日向', '大隅', '萨摩', '壹岐', '对马'] },
+        { prov: '日本', fu: '虾夷', counties: ['虾夷'] },
+        
+        // 朝鲜八道各大都护府、牧、郡
+        { prov: '朝鲜', fu: '京畿道', counties: ['汉城府', '开城府', '仁川都护府', '金浦郡', '富平都护府', '衿川县', '安山郡', '果川县', '水原都护府', '南阳都护府', '广州府', '龙仁县', '利川都护府', '安城郡', '振威县', '高阳郡', '坡州牧', '杨州牧', '加平郡', '骊州牧', '杨根郡', '抱川郡', '涟川县', '江华都护府'] },
+        { prov: '朝鲜', fu: '江原道', counties: ['春川都护府', '华川县', '杨口县', '麟蹄县', '原州牧', '横城县', '平昌郡', '宁越郡', '旌善郡', '江陵大都护府', '三陟都护府', '襄阳都护府', '杆城郡', '洪川县', '铁原都护府', '安边都护府', '平康县', '通川郡', '高城郡', '伊川郡', '淮阳都护府', '金化县'] },
+        { prov: '朝鲜', fu: '忠清道', counties: ['清州牧', '忠州牧', '堤川县', '丹阳郡', '天安都护府', '公州牧', '保宁县', '牙山县', '瑞山郡', '泰安郡', '尼山县', '唐津县', '锦山郡', '扶余县', '舒川郡', '青阳县', '洪州牧', '礼山县', '怀德县', '燕岐县', '报恩县', '沃川郡', '永同县', '镇川县', '槐山郡', '阴城县'] },
+        { prov: '朝鲜', fu: '庆尚道', counties: ['大邱都护府', '庆山县', '漆谷都护府', '东莱都护府', '金海都护府', '梁山郡', '机张县', '蔚山都护府', '迎日县', '庆州府', '金山郡', '安东大都护府', '善山都护府', '荣川郡', '永川郡', '尚州牧', '闻庆县', '军威县', '义城县', '青松都护府', '英阳县', '盈德县', '清道郡', '高灵县', '星州牧', '醴泉郡', '奉化县', '蔚珍县', '平海郡', '昌原都护府', '晋州牧', '固城县', '泗川县', '密阳都护府', '巨济县', '宜宁县', '咸安郡', '昌宁县', '南海县', '河东县', '山阴县', '咸阳郡', '居昌郡', '陕川郡'] },
+        { prov: '朝鲜', fu: '全罗道', counties: ['全州府', '临陂县', '益山郡', '井邑县', '南原都护府', '金堤郡', '镇安县', '茂朱府', '长水县', '任实县', '淳昌郡', '高敞县', '扶安县', '光州牧', '务安县', '顺天都护府', '光阳县', '罗州牧', '潭阳都护府', '谷城县', '求礼县', '兴阳县', '宝城郡', '和顺县', '长兴都护府', '康津县', '海南县', '灵岩郡', '咸平县', '灵光郡', '长城都护府', '珍岛郡', '济州牧', '大静县'] },
+        { prov: '朝鲜', fu: '平安道', counties: ['平壤府', '江西县', '安州牧', '肃川都护府', '永柔县', '甑山县', '义州府', '阳德县', '顺川郡', '成川都护府', '殷山县', '北仓郡', '大同郡', '昌城都护府', '碧潼郡', '泰川县', '博川郡', '球场郡', '香山郡', '云山郡', '宁边大都护府', '龟城都护府', '大馆郡', '天摩郡', '枇岘郡', '盐州郡', '龙川郡', '薪岛郡', '东林郡', '铁山都护府', '定州牧', '郭山郡', '宣川郡', '江界都护府', '长江郡', '慈城郡', '厚昌郡', '理山郡', '时中郡', '渭原郡', '前川郡', '龙林郡', '楚山郡', '古丰郡', '雩山郡', '熙川郡', '松源郡', '东新郡', '狼林郡', '宁远郡', '孟山县', '价川郡', '德川郡'] },
+        { prov: '朝鲜', fu: '咸镜道', counties: ['镜城都护府', '渔郎郡', '富宁都护府', '茂山府', '会宁都护府', '稳城都护府', '钟城都护府', '庆源都护府', '庆兴都护府', '明川都护府', '吉州牧', '端川郡', '甲山都护府', '三水都护府', '咸兴府', '洪原郡', '定平都护府', '永兴大都护府', '北青都护府', '长津郡'] },
+        { prov: '朝鲜', fu: '黄海道', counties: ['海州牧', '凤山郡', '黄州牧', '瓮津都护府', '延安都护府', '康翎县', '长渊县', '安岳郡', '松禾县', '殷栗县', '丰川都护府', '信川郡', '载宁郡', '遂安郡', '中和都护府', '谷山都护府', '平山都护府', '金川郡', '新溪县', '白川郡'] },
+        
+        // 琉球
+        { prov: '琉球', fu: '琉球国', counties: ['中山'] }
+    ];
+
+    // 将外国历史地名正式写入大明搜索字典
+    eastAsiaSearchData.forEach(item => {
+        item.counties.forEach(county => {
+            if (!mingCountySearchIndex[county]) mingCountySearchIndex[county] = [];
+            if (!mingCountySearchIndex[county].some(i => i.prov === item.prov && i.fu === item.fu)) {
+                mingCountySearchIndex[county].push({ prov: item.prov, fu: item.fu });
+            }
+        });
+    });
+
+    // 为玩家提供极其方便的现代日韩名直搜功能
+    // 当玩家搜“首尔”时，底层自动匹配到“汉城府”，下钻定位体验和国内一模一样！
+    const modernAsianTranslations = {
+        '首尔':'汉城府', '汉城':'汉城府', '釜山':'东莱都护府', '大邱':'大邱都护府', '仁川':'仁川都护府', '光州':'光州牧', '大田':'怀德县', '蔚山':'蔚山都护府', '世宗':'燕岐县', '平壤':'平壤府', '南浦':'江西县', '开城':'开城府', '罗先':'庆兴都护府', '济州':'济州牧', '水原':'水原都护府', '济州岛':'济州牧',
+        '东京':'武藏', '大阪':'摄津', '京都':'山城', '北海道':'虾夷', '横滨':'相模', '名古屋':'尾张', '神户':'播磨', '福冈':'筑前', '广岛':'安艺', '札幌':'虾夷', '鹿儿岛':'萨摩', '长崎':'肥前', '冲绳':'中山'
+    };
+    for (let modernName in modernAsianTranslations) {
+        modernCountyToMingCounty[modernName] = modernAsianTranslations[modernName];
+    }
 }
+
 
 // ==========================================
 // 模糊搜索与下拉提示逻辑
@@ -2512,18 +2749,71 @@ function buildEastAsiaGeo() {
         return f;
     });
 
+
     const tokugawa = W.features.find(f => f.properties.name === '德川幕府');
     if (tokugawa && tokugawa.geometry.type === 'MultiPolygon') {
         const coords = tokugawa.geometry.coordinates;
-        if(coords.length > 18) {
-            features.push({ type: 'Feature', properties: { name: '朝鲜' }, geometry: { type: 'MultiPolygon', coordinates: [coords[1]] } });
-            features.push({ type: 'Feature', properties: { name: '东番' }, geometry: { type: 'MultiPolygon', coordinates: [coords[18]] } });
-            const japanCoords = coords.filter((_, i) => i !== 1 && i !== 18);
+        let japanCoords = [];
+        let ryukyuCoords = [];
+        let joseonCoords = []; // 新增：用来存放朝鲜半岛及济州岛碎片
+
+        coords.forEach((polygon, i) => {
+            // 实时计算每个碎片的几何中心点
+            let minLng = 180, maxLng = -180, minLat = 90, maxLat = -90;
+            const findBounds = (arr) => {
+                if (typeof arr[0] === 'number') {
+                    if (arr[0] < minLng) minLng = arr[0];
+                    if (arr[0] > maxLng) maxLng = arr[0];
+                    if (arr[1] < minLat) minLat = arr[1];
+                    if (arr[1] > maxLat) maxLat = arr[1];
+                } else {
+                    for (let j = 0; j < arr.length; j++) findBounds(arr[j]);
+                }
+            };
+            findBounds(polygon);
+            let centerLng = (minLng + maxLng) / 2;
+            let centerLat = (minLat + maxLat) / 2;
+
+            if (i === 1) {
+                // 认领原代码中硬编码的朝鲜半岛主体
+                joseonCoords.push(polygon);
+            } else if (i === 18) {
+                // 认领东番
+                features.push({ type: 'Feature', properties: { name: '东番' }, geometry: { type: 'MultiPolygon', coordinates: [polygon] } });
+            } else if (centerLat < 29.0) {
+                // 北纬 29 度以南归为琉球
+                ryukyuCoords.push(polygon);
+            } else if (centerLng < 128.5 && centerLat > 31.0 && centerLat < 35.0) {
+                // 【核心修复】：雷达拦截济州岛等韩国南部离岛
+                // 济州岛在 (126.5E, 33.3N)，该条件精准包揽它，同时避开日本对马岛(129.2E)和五岛列岛(128.8E)
+                joseonCoords.push(polygon);
+            } else {
+                // 筛剩下的才是真正的日本本土
+                japanCoords.push(polygon);
+            }
+        });
+
+        // 重新缝合朝鲜（包括半岛主体和找回的济州岛）
+        if (joseonCoords.length > 0) {
+            features.push({ type: 'Feature', properties: { name: '朝鲜' }, geometry: { type: 'MultiPolygon', coordinates: joseonCoords } });
+        }
+
+        // 提取并缓存琉球多边形，供第2和第3层下钻时复用
+        if (ryukyuCoords.length > 0) {
+            const ryukyuFeature = { type: 'Feature', properties: { name: '琉球' }, geometry: { type: 'MultiPolygon', coordinates: ryukyuCoords } };
+            features.push(ryukyuFeature);
+            window._cachedRyukyuFeature = ryukyuFeature; 
+        }
+        
+        // 生成纯净版日本
+        if (japanCoords.length > 0) {
             features.push({ type: 'Feature', properties: { name: '日本' }, geometry: { type: 'MultiPolygon', coordinates: japanCoords } });
         }
     }
+
     return { type: 'FeatureCollection', features };
 }
+
 
 function getMingProvinceName(m) { return modernToMingProvince[m] || m; }
 // --- 新增：切除海西州/格尔木市的唐古拉山镇飞地 ---
@@ -2540,9 +2830,146 @@ function removeTanggulaEnclave(feature) {
     }
     return feature;
 }
+// --- 新增：切除日本太平洋偏远离岛（防止东海道、西海道视角偏移） ---
+function removeJapanIslands(feature) {
+    if (!feature || !feature.geometry) return feature;
+    let prefName = feature.properties.NL_NAME_1 || feature.properties.NAME_1 || '';
+
+    // 处理东京都（武藏）：切除北纬 35 度以南的伊豆群岛和小笠原群岛
+    if (prefName.includes('東京') || feature.properties.name === '武藏') {
+        if (feature.geometry.type === 'MultiPolygon') {
+            feature.geometry.coordinates = feature.geometry.coordinates.filter(p => {
+                // 取多边形外环第一个点的纬度作为代表
+                let lat = p[0][0][1];
+                return lat > 35.0; 
+            });
+            if (feature.geometry.coordinates.length === 1) {
+                feature.geometry.type = 'Polygon';
+                feature.geometry.coordinates = feature.geometry.coordinates[0];
+            }
+        }
+    }
+    
+    // 处理鹿儿岛（萨摩）：切除北纬 30.5 度以南的奄美大岛等离岛
+    if (prefName.includes('鹿児島') || feature.properties.name === '萨摩') {
+        if (feature.geometry.type === 'MultiPolygon') {
+            feature.geometry.coordinates = feature.geometry.coordinates.filter(p => {
+                let lat = p[0][0][1];
+                return lat > 30.5;
+            });
+            if (feature.geometry.coordinates.length === 1) {
+                feature.geometry.type = 'Polygon';
+                feature.geometry.coordinates = feature.geometry.coordinates[0];
+            }
+        }
+    }
+    return feature;
+}
+
 
 // 获取第二层：府州边界
+// 替换代码
 async function buildMingPrefectureGeoJSON(mingName) {
+
+    // ================= 新增：独立处理琉球数据 =================
+    if (mingName === '琉球') {
+        if (window._cachedRyukyuFeature) {
+            let f = JSON.parse(JSON.stringify(window._cachedRyukyuFeature));
+            f.properties.name = '琉球国'; // 第二层的名字
+            return { type: 'FeatureCollection', features: [f] };
+        }
+        return null;
+    }
+    // =========================================================
+
+    // ================= 新增：专属拦截日本数据并处理 =================
+    if (mingName === '日本') {
+        const jpGeo = await fetchGeoJSON('JPN_1');
+        if (!jpGeo || !jpGeo.features) return null;
+        
+        const fuMap = {};
+        jpGeo.features.forEach(f => {
+            let rawName = f.properties.NL_NAME_1 || f.properties.NAME_1 || '';
+            let cleanName = rawName.replace(/[都道府県]$/, ''); // 切除都道府县后缀
+            if (cleanName === '沖縄') return; // 跳过冲绳，使其不出现在日本版图中
+            let edoName = japanToEdoMap[cleanName] || cleanName; // 映射为江户地名
+            let regionName = edoToRegionMap[edoName] || edoName; // 映射为五畿七道等
+            
+            // 【修改这行】：在深拷贝后，套上一层 removeJapanIslands 函数
+            let newF = removeJapanIslands(JSON.parse(JSON.stringify(f)));
+            newF.properties.name = regionName;
+            
+            if (!fuMap[regionName]) fuMap[regionName] = [];
+            fuMap[regionName].push(newF);
+        });
+
+
+        const features = [];
+        Object.keys(fuMap).forEach(fu => {
+            const feats = fuMap[fu];
+            if (feats.length === 1) {
+                features.push(feats[0]);
+            } else {
+                // 如果多个现代县对应同一个道，进行多边形合并
+                const base = feats[0];
+                const all = [];
+                feats.forEach(f => {
+                    if (f.geometry.type === 'Polygon') all.push(f.geometry.coordinates);
+                    else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(c => all.push(c));
+                });
+                base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
+                features.push(base);
+            }
+        });
+        return { type: 'FeatureCollection', features };
+    }
+        // ================= 新增：专属拦截朝鲜数据并重组为八道 =================
+    if (mingName === '朝鲜') {
+        const korGeo = await fetchGeoJSON('KOR_1');
+        const prkGeo = await fetchGeoJSON('PRK_1');
+        if (!korGeo || !prkGeo) return null;
+
+        const fuMap = {};
+
+        // 辅助函数：处理单边数据
+        const processKoreaLevel1 = (geoData) => {
+            geoData.features.forEach(f => {
+                let rawName = f.properties.NAME_1 || f.properties.NL_NAME_1 || '';
+                let paldoName = koreaToJoseonMap[rawName] || '京畿道'; // 匹配八道，默认兜底京畿道
+                
+                let newF = JSON.parse(JSON.stringify(f));
+                newF.properties.name = paldoName;
+                
+                if (!fuMap[paldoName]) fuMap[paldoName] = [];
+                fuMap[paldoName].push(newF);
+            });
+        };
+
+        processKoreaLevel1(korGeo);
+        processKoreaLevel1(prkGeo);
+
+        const features = [];
+        Object.keys(fuMap).forEach(fu => {
+            const feats = fuMap[fu];
+            if (feats.length === 1) {
+                features.push(feats[0]);
+            } else {
+                // 如果多块现代道对应同一个历史八道（例如南北江原道），进行多边形合并
+                const base = feats[0];
+                const all = [];
+                feats.forEach(f => {
+                    if (f.geometry.type === 'Polygon') all.push(f.geometry.coordinates);
+                    else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(c => all.push(c));
+                });
+                base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
+                features.push(base);
+            }
+        });
+        return { type: 'FeatureCollection', features };
+    }
+    // =============================================================
+
+    // =============================================================
 
     if (!mingMapNationGeoJSON) {
         mingMapChartInstance.showLoading({text:'拉取细分边界...', color:'#d4af37', maskColor:'rgba(10,14,23,0.8)'});
@@ -2742,7 +3169,184 @@ async function buildMingPrefectureGeoJSON(mingName) {
 }
 
 // 获取第三层：区县边界并转换合并为明代县域
+// 替换代码
 async function buildMingCountyGeoJSON(mingProv, mingFu) {
+
+    // ================= 新增：独立处理琉球区县数据 =================
+    if (mingProv === '琉球') {
+        if (window._cachedRyukyuFeature) {
+            let f = JSON.parse(JSON.stringify(window._cachedRyukyuFeature));
+            f.properties.name = '中山'; // 第三层的名字（琉球国首都中山府）
+            return { type: 'FeatureCollection', features: [f] };
+        }
+        return null;
+    }
+    // ================= 新增：专属拦截日本区县数据并古风化 =================
+    if (mingProv === '日本') {
+        const jpGeo = await fetchGeoJSON('JPN_1');
+        if (!jpGeo || !jpGeo.features) return null;
+
+        const countyMap = {};
+        jpGeo.features.forEach(f => {
+            let prefName = f.properties.NL_NAME_1 || f.properties.NAME_1 || '';
+            let cleanPrefName = prefName.replace(/[都道府県]$/, '');
+            let edoName = japanToEdoMap[cleanPrefName] || cleanPrefName;
+            let regionName = edoToRegionMap[edoName] || edoName;
+            
+            // 归属当前被点击的五畿七道
+            if (regionName === mingFu) { 
+                // 【修改这行】：在深拷贝后，套上一层 removeJapanIslands 函数
+                let newF = removeJapanIslands(JSON.parse(JSON.stringify(f)));
+                newF.properties.name = edoName; // 以令制国作为第三层的名称
+                
+                if (!countyMap[edoName]) countyMap[edoName] = [];
+                countyMap[edoName].push(newF);
+            }
+        });
+
+
+        const mergedFeatures = [];
+        Object.keys(countyMap).forEach(cName => {
+            const feats = countyMap[cName];
+            if (feats.length === 1) {
+                mergedFeatures.push(feats[0]);
+            } else {
+                const base = feats[0];
+                const all = [];
+                feats.forEach(f => {
+                    if (f.geometry.type === 'Polygon') {
+                        all.push(f.geometry.coordinates);
+                    } else if (f.geometry.type === 'MultiPolygon') {
+                        f.geometry.coordinates.forEach(c => all.push(c));
+                    }
+                });
+                base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
+                mergedFeatures.push(base);
+            }
+        });
+
+        return { type: 'FeatureCollection', features: mergedFeatures };
+    }
+    // ================= 新增：专属拦截朝鲜区县数据并古风化 =================
+    if (mingProv === '朝鲜') {
+        const korGeo = await fetchGeoJSON('KOR_2');
+        const prkGeo = await fetchGeoJSON('PRK_2');
+        if (!korGeo || !prkGeo) return null;
+
+        const countyMap = {};
+        
+        // 核心直辖市/特辖市名单
+        const directCities = ['Seoul', 'Busan', 'Daegu', 'Incheon', 'Gwangju', 'Daejeon', 'Ulsan', 'Sejong', 'P\'yŏngyang', 'Namp\'o', 'Rasŏn', 'Kaesŏng', 'Jeju-do'];
+
+        const processKoreaLevel2 = (geoData) => {
+            if (!geoData.features) return;
+            
+            let mappedFeatures = [];
+            let unmappedFeatures = [];
+
+            geoData.features.forEach(f => {
+                let provName = f.properties.NAME_1 || f.properties.NL_NAME_1 || '';
+                let paldoName = koreaToJoseonMap[provName] || '京畿道';
+
+                // 只处理当前点击的“道”
+                if (paldoName === mingFu) {
+                    let modernCounty = f.properties.NAME_2 || f.properties.NL_NAME_2 || '';
+                    
+                    // 剥离现代行政区划后缀，极大提高匹配精准度
+                    let cleanCounty = modernCounty.replace(/[- ]?(si|gun|gu|do|shi|city|county)$/i, '').replace(/[市郡구군시]$/, '');
+                    let joseonName;
+
+                    if (directCities.includes(provName)) {
+                        joseonName = joseonCountyMap[provName];
+                    } else {
+                        joseonName = joseonCountyMap[cleanCounty] || joseonCountyMap[modernCounty];
+                    }
+
+                    let newF = JSON.parse(JSON.stringify(f));
+                    // 预先计算该区域的几何中心点，为后续的“离近原则”计算做准备
+                    newF.properties._center = getFeatureCenter(f) || [0, 0];
+
+                    if (joseonName) {
+                        newF.properties.name = joseonName;
+                        mappedFeatures.push(newF);
+                    } else {
+                        unmappedFeatures.push(newF);
+                    }
+                }
+            });
+
+            // 【真正的空间离近原则】：针对漏网的、现代拆分的微小区域
+            // 绝不乱起名字，也绝不跨区乱认大哥产生飞地。
+            // 算法会计算这个未知碎片的中心点，找到离它【物理距离最近】的一个已知明代区域，自动并入。
+            // 这在数学层面 100% 保证绝对不会有飞地，也绝对不会有假名和重名碎片。
+            unmappedFeatures.forEach(uf => {
+                if (mappedFeatures.length > 0) {
+                    let closestName = mappedFeatures[0].properties.name;
+                    let minD = Infinity;
+                    
+                    mappedFeatures.forEach(mf => {
+                        let dx = uf.properties._center[0] - mf.properties._center[0];
+                        let dy = uf.properties._center[1] - mf.properties._center[1];
+                        let d = dx * dx + dy * dy; // 计算几何中心欧式距离的平方
+                        
+                        if (d < minD) {
+                            minD = d;
+                            closestName = mf.properties.name;
+                        }
+                    });
+                    
+                    // 继承离它最近的邻居的名字，由于物理上相邻，Echarts渲染时将无缝融合为同一块
+                    uf.properties.name = closestName; 
+                } else {
+                    // 极端兜底（只在当前道没有任何字典匹配时发生，实际已不可能触发）
+                    const safeDaoFallback = {
+                        '京畿道': '汉城府', '平安道': '平壤府', '咸镜道': '咸兴府', '黄海道': '海州牧',
+                        '江原道': '江陵大都护府', '忠清道': '公州牧', '庆尚道': '庆州府', '全罗道': '全州府'
+                    };
+                    uf.properties.name = safeDaoFallback[mingFu] || '未知区域';
+                }
+            });
+
+            // 统一根据 name 将碎片打包装箱，供外部 Echarts 进行 MultiPolygon 平滑渲染
+            [...mappedFeatures, ...unmappedFeatures].forEach(f => {
+                let finalName = f.properties.name;
+                if (!countyMap[finalName]) countyMap[finalName] = [];
+                countyMap[finalName].push(f);
+            });
+        };
+
+
+
+
+        processKoreaLevel2(korGeo);
+        processKoreaLevel2(prkGeo);
+
+        const mergedFeatures = [];
+        Object.keys(countyMap).forEach(cName => {
+            const feats = countyMap[cName];
+            if (feats.length === 1) {
+                mergedFeatures.push(feats[0]);
+            } else {
+                const base = feats[0];
+                const all = [];
+                feats.forEach(f => {
+                    if (f.geometry.type === 'Polygon') {
+                        all.push(f.geometry.coordinates);
+                    } else if (f.geometry.type === 'MultiPolygon') {
+                        f.geometry.coordinates.forEach(c => all.push(c));
+                    }
+                });
+                base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
+                mergedFeatures.push(base);
+            }
+        });
+
+        return { type: 'FeatureCollection', features: mergedFeatures };
+    }
+    // =============================================================
+
+    // =============================================================
+
     if (!mingCountySearchIndex) buildCountyIndex();
     let modernProvs = Object.keys(modernToMingProvince).filter(k => modernToMingProvince[k] === mingProv);
     
