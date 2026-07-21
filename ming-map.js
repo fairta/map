@@ -1,4 +1,4 @@
-
+const MAP_FRAME_ID = 'ming-dynasty-map-frame';
 const LAMP_ID = 'ming-map-lamp';
 const STORAGE_PREFIX = 'ming-map:';
 
