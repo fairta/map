@@ -2,6 +2,9 @@ const MAP_FRAME_ID = 'ming-dynasty-map-frame';
 const LAMP_ID = 'ming-map-lamp';
 const STORAGE_PREFIX = 'ming-map:';
 
+// 每次更新地图内容后，修改此版本号（如变为 v1.1、v1.2），即可重新触发玩家界面上的红点提示
+const MING_MAP_VERSION = 'v1.0'; 
+
 // ==========================================
 // 地图核心数据常量与映射
 // ==========================================
@@ -195,8 +198,149 @@ const joseonCountyMap = {
     'Pyongsan':'平山都护府', 'P\'yŏngsan':'平山都护府', 'Kumchon':'金川郡', 'Kŭmch\'ŏn':'金川郡', 'Tosan':'平山都护府', 'T\'osan':'平山都护府', 'Sinchyong':'新溪县', 'Singye':'新溪县', 'Pongsan':'凤山郡',
     'Rinsan':'平山都护府', 'Paehyon':'白川郡', 'Paehyŏn':'白川郡', 'Paechon':'白川郡', 'Paech\'ŏn':'白川郡'
 };
+// ==========================================
+// 新增：喀尔喀、尼婆罗、不丹 现代->1634 映射 (全语言模糊匹配增强版)
+// ==========================================
+const khalkhaToCountyMap = {
+    'Ulaanbaatar': '库伦', '乌兰巴托': '库伦', 'Ulan Bator': '库伦',
+    'Töv': '土谢图中部', '中央': '土谢图中部', 'Tov': '土谢图中部',
+    'Selenge': '土谢图北部', '色楞格': '土谢图北部', 'Darkhan': '土谢图北部', '达尔汗': '土谢图北部', 'Darhan': '土谢图北部',
+    'Dundgovi': '土谢图南部', '中戈壁': '土谢图南部', 
+    'Ömnögovi': '戈壁诸部', '南戈壁': '戈壁诸部', 'Omnogovi': '戈壁诸部',
+    'Khentii': '车臣汗中部', '肯特': '车臣汗中部', 'Hentiy': '车臣汗中部', 'Govisümber': '车臣汗中部', '戈壁苏木贝尔': '车臣汗中部',
+    'Dornod': '车臣汗东部', '东方': '车臣汗东部', 
+    'Sukhbaatar': '车臣汗南部', '苏赫巴托': '车臣汗南部', 'Sühbaatar': '车臣汗南部',
+    'Dornogovi': '车臣汗西南部', '东戈壁': '车臣汗西南部',
+    'Arkhangai': '赛音诺颜部', '后杭爱': '赛音诺颜部', 'Arhangay': '赛音诺颜部',
+    'Övörkhangai': '赛音诺颜部', '前杭爱': '赛音诺颜部', 'Ovorkhangai': '赛音诺颜部', 'Övörhangay': '赛音诺颜部',
+    'Bayankhongor': '扎萨克图南部', '巴彦洪戈尔': '扎萨克图南部', 'Bayanhongor': '扎萨克图南部',
+    'Zavkhan': '扎萨克图中部', '扎布汗': '扎萨克图中部', 'Dzavhan': '扎萨克图中部',
+    'Govi-Altai': '扎萨克图西部', '戈壁阿尔泰': '扎萨克图西部', 'Govi Altai': '扎萨克图西部', 'Govi-Altay': '扎萨克图西部',
+    'Khövsgöl': '唐努乌梁海', '库苏古尔': '唐努乌梁海', 'Khovsgol': '唐努乌梁海', 'Hövsgöl': '唐努乌梁海',
+    'Bulgan': '土谢图西部', '布尔干': '土谢图西部', 'Orkhon': '土谢图西部', '鄂尔浑': '土谢图西部', 'Orhon': '土谢图西部',
+    'Khovd': '科布多', '科布多': '科布多', 'Hovd': '科布多',
+    'Uvs': '杜尔伯特部', '乌布苏': '杜尔伯特部', 
+    'Bayan-Ölgii': '阿尔泰乌梁海', '巴彦乌列盖': '阿尔泰乌梁海', 'Bayan-Olgii': '阿尔泰乌梁海', 'Bayan-Ölgiy': '阿尔泰乌梁海'
+};
+const khalkhaCountyToFuMap = {
+    '库伦': '土谢图汗部', '土谢图中部': '土谢图汗部', '土谢图北部': '土谢图汗部', '土谢图南部': '土谢图汗部', '戈壁诸部': '土谢图汗部', '土谢图西部': '土谢图汗部',
+    '车臣汗中部': '车臣汗部', '车臣汗东部': '车臣汗部', '车臣汗南部': '车臣汗部', '车臣汗西南部': '车臣汗部',
+    '扎萨克图中部': '扎萨克图汗部', '扎萨克图南部': '扎萨克图汗部', '扎萨克图西部': '扎萨克图汗部', '赛音诺颜部': '扎萨克图汗部', 
+    '唐努乌梁海': '和托辉特部', '科布多': '和托辉特部', '杜尔伯特部': '和托辉特部', '阿尔泰乌梁海': '和托辉特部'
+};
 
+const nepalToCountyMap = {
+    'Sudurpashchim': '多提王国', '远西': '多提王国', 'Far-Western': '多提王国', 
+    'Karnali': '朱姆拉王国', '卡尔纳利': '朱姆拉王国', 'Mid-Western': '朱姆拉王国', 
+    'Lumbini': '帕尔帕王国', '蓝毗尼': '帕尔帕王国', 
+    'Gandaki': '卡斯基王国', '甘达基': '卡斯基王国', 'Western': '卡斯基王国', 
+    'Bagmati': '坎提普尔', '巴格马蒂': '坎提普尔', 'Central': '坎提普尔', 
+    'Madhesh': '玛克万普尔', '马德什': '玛克万普尔', 'Janakpur': '玛克万普尔',
+    'Koshi': '维阇耶补罗', '科希': '维阇耶补罗', 'Eastern': '维阇耶补罗',
+    'P1': '维阇耶补罗', 'P2': '玛克万普尔', 'P3': '坎提普尔', 'P4': '卡斯基王国', 'P5': '帕尔帕王国', 'P6': '朱姆拉王国', 'P7': '多提王国',
+    'Province 1': '维阇耶补罗', 'Province 2': '玛克万普尔', 'Province 3': '坎提普尔', 'Province 4': '卡斯基王国', 'Province 5': '帕尔帕王国', 'Province 6': '朱姆拉王国', 'Province 7': '多提王国',
+    'Seti': '多提王国', 'Mahakali': '多提王国', 'Bheri': '朱姆拉王国', 'Rapti': '朱姆拉王国', 'Dhawalagiri': '帕尔帕王国', 'Narayani': '坎提普尔', 'Sagarmatha': '维阇耶补罗', 'Mechi': '维阇耶补罗'
+};
+const nepalCountyToFuMap = {
+    '多提王国': '拜塞诸国', '朱姆拉王国': '拜塞诸国', '帕尔帕王国': '乔比西诸国', '卡斯基王国': '乔比西诸国',
+    '坎提普尔': '马拉王朝', '玛克万普尔': '森王朝', '维阇耶补罗': '森王朝'
+};
 
+const bhutanToCountyMap = {
+    'Paro': '帕罗宗', '帕罗': '帕罗宗', 'Haa': '哈宗', '哈': '哈宗', 'Ha': '哈宗',
+    'Samtse': '萨姆奇', '萨姆奇': '萨姆奇', 'Samchi': '萨姆奇',
+    'Chukha': '楚卡', '楚卡': '楚卡', 'Chhukha': '楚卡',
+    'Thimphu': '廷布宗', '廷布': '廷布宗', 'Gasa': '加萨宗', '加萨': '加萨宗',
+    'Punakha': '普那卡宗', '普那卡': '普那卡宗', 'Wangdue Phodrang': '旺杜波德朗', '旺杜波德朗': '旺杜波德朗', 'Wangdi Phodrang': '旺杜波德朗',
+    'Dagana': '达加纳', '达加纳': '达加纳', 'Daga': '达加纳',
+    'Tsirang': '奇朗', '奇朗': '奇朗', 'Chirang': '奇朗',
+    'Trongsa': '同萨宗', '同萨': '同萨宗', 'Bumthang': '布姆唐', '布姆唐': '布姆唐', 
+    'Zhemgang': '谢姆冈', '谢姆冈': '谢姆冈', 'Sarpang': '萨尔庞', '萨尔庞': '萨尔庞',
+    'Mongar': '蒙加尔', '蒙加尔': '蒙加尔', 'Trashigang': '塔西冈宗', '塔西冈': '塔西冈宗', 
+    'Lhuntse': '伦奇', '伦奇': '伦奇', 'Lhuntshi': '伦奇',
+    'Trashiyangtse': '塔西央奇', '塔西央奇': '塔西央奇', 'Trashiyangtsi': '塔西央奇',
+    'Pemagatshel': '佩马加策尔', '佩马加策尔': '佩马加策尔', 'Pemagatsel': '佩马加策尔',
+    'Samdrup Jongkhar': '萨姆德鲁琼卡尔', '萨姆德鲁琼卡尔': '萨姆德鲁琼卡尔'
+};
+const bhutanCountyToFuMap = {
+    '帕罗宗': '西不丹', '哈宗': '西不丹', '萨姆奇': '西不丹', '楚卡': '西不丹',
+    '廷布宗': '中不丹', '加萨宗': '中不丹', '普那卡宗': '中不丹', '旺杜波德朗': '中不丹', '达加纳': '中不丹', '奇朗': '中不丹',
+    '同萨宗': '东不丹', '布姆唐': '东不丹', '谢姆冈': '东不丹', '萨尔庞': '东不丹',
+    '蒙加尔': '东不丹', '塔西冈宗': '东不丹', '伦奇': '东不丹', '塔西央奇': '东不丹', '佩马加策尔': '东不丹', '萨姆德鲁琼卡尔': '东不丹'
+};
+// ==========================================
+// 新增：澜沧、暹罗、越南、莫卧儿 现代->1634 映射
+// ==========================================
+const lancangToCountyMap = {
+    'Vientiane': '万象', '万象': '万象', 'Viangchan': '万象', 'Xaisomboun': '赛宋奔', '赛宋奔': '赛宋奔',
+    'Luang Prabang': '琅勃拉邦', '琅勃拉邦': '琅勃拉邦', 'Louangphabang': '琅勃拉邦', 'Oudomxay': '乌多姆塞', '乌多姆塞': '乌多姆塞', 'Phongsaly': '丰沙里', '丰沙里': '丰沙里', 'Luang Namtha': '琅南塔', '琅南塔': '琅南塔', 'Bokeo': '博胶', '博胶': '博胶', 'Xayabury': '沙耶武里', '沙耶武里': '沙耶武里',
+    'Xiangkhouang': '川圹', '川圹': '川圹', 'Houaphanh': '华潘', '华潘': '华潘',
+    'Champasak': '占巴塞', '占巴塞': '占巴塞', 'Savannakhet': '沙湾拿吉', '沙湾拿吉': '沙湾拿吉', 'Khammouane': '甘蒙', '甘蒙': '甘蒙', 'Saravane': '沙拉湾', '沙拉湾': '沙拉湾', 'Sekong': '塞贡', '塞贡': '塞贡', 'Attapeu': '阿速坡', '阿速坡': '阿速坡', 'Borikhamxay': '波里坎塞', '波里坎塞': '波里坎塞'
+};
+const lancangCountyToFuMap = {
+    '万象': '万象', '赛宋奔': '万象', '琅勃拉邦': '琅勃拉邦', '乌多姆塞': '琅勃拉邦', '丰沙里': '琅勃拉邦', '琅南塔': '琅勃拉邦', '博胶': '琅勃拉邦', '沙耶武里': '琅勃拉邦',
+    '川圹': '勐潘', '华潘': '勐潘', '占巴塞': '占巴塞', '沙湾拿吉': '占巴塞', '甘蒙': '占巴塞', '沙拉湾': '占巴塞', '塞贡': '占巴塞', '阿速坡': '占巴塞', '波里坎塞': '万象'
+};
+
+const siamToCountyMap = {
+    'Bangkok': '阿瑜陀耶', '曼谷': '阿瑜陀耶', 'Ayutthaya': '阿瑜陀耶', '大城': '阿瑜陀耶', 'Nonthaburi': '阿瑜陀耶', 'Pathum Thani': '阿瑜陀耶', 'Samut': '阿瑜陀耶', 'Nakhon Pathom': '阿瑜陀耶', 'Suphan Buri': '阿瑜陀耶', 'Saraburi': '阿瑜陀耶', 'Lop Buri': '阿瑜陀耶', 'Ang Thong': '阿瑜陀耶', 'Sing Buri': '阿瑜陀耶', 'Chai Nat': '阿瑜陀耶',
+    'Chiang Mai': '清迈', '清迈': '清迈', 'Chiang Rai': '清迈', '清莱': '清迈', 'Mae Hong Son': '清迈', 'Lampang': '清迈', '南邦': '清迈', 'Lamphun': '清迈', '南奔': '清迈', 'Phrae': '清迈', '帕府': '清迈', 'Nan': '清迈', '难府': '清迈', 'Phayao': '清迈', '帕夭': '清迈',
+    'Nakhon Ratchasima': '呵叻', '呵叻': '呵叻', 'Khon Kaen': '呵叻', '孔敬': '呵叻', 'Udon Thani': '呵叻', '乌隆': '呵叻', 'Ubon Ratchathani': '呵叻', '乌汶': '呵叻', 'Nong Khai': '呵叻', '廊开': '呵叻', 'Surin': '呵叻', '素林': '呵叻', 'Buri Ram': '呵叻', '武里南': '呵叻', 'Chaiyaphum': '呵叻', 'Sakon Nakhon': '呵叻', 'Roi Et': '呵叻', 'Maha Sarakham': '呵叻', 'Loei': '呵叻', 'Nong Bua Lam Phu': '呵叻', 'Amnat Charoen': '呵叻', 'Si Sa Ket': '呵叻', 'Yasothon': '呵叻', 'Mukdahan': '呵叻', 'Kalasin': '呵叻', 'Bueng Kan': '呵叻',
+    'Phitsanulok': '彭世洛', '彭世洛': '彭世洛', 'Sukhothai': '彭世洛', '素可泰': '彭世洛', 'Phetchabun': '彭世洛', '碧差汶': '彭世洛', 'Tak': '彭世洛', '来兴': '彭世洛', 'Kamphaeng Phet': '彭世洛', '甘烹碧': '彭世洛', 'Uttaradit': '彭世洛', '程逸': '彭世洛', 'Nakhon Sawan': '彭世洛', '那空沙旺': '彭世洛', 'Uthai Thani': '彭世洛', 'Phichit': '彭世洛',
+    'Nakhon Si Thammarat': '洛坤', '洛坤': '洛坤', 'Surat Thani': '洛坤', '素叻他尼': '洛坤', 'Phuket': '洛坤', '普吉': '洛坤', 'Krabi': '洛坤', '甲米': '洛坤', 'Songkhla': '洛坤', '宋卡': '洛坤', 'Chumphon': '洛坤', '春蓬': '洛坤', 'Phang Nga': '洛坤', '攀牙': '洛坤', 'Phatthalung': '洛坤', '博他仑': '洛坤', 'Trang': '洛坤', '董里': '洛坤', 'Ranong': '洛坤',
+    'Pattani': '北大年', '北大年': '北大年', 'Yala': '北大年', '惹拉': '北大年', 'Narathiwat': '北大年', '那拉提瓦': '北大年', 'Satun': '北大年',
+    'Chon Buri': '尖竹汶', '春武里': '尖竹汶', 'Rayong': '尖竹汶', '罗勇': '尖竹汶', 'Chanthaburi': '尖竹汶', '尖竹汶': '尖竹汶', 'Trat': '尖竹汶', '达叻': '尖竹汶', 'Prachin Buri': '尖竹汶', '巴真': '尖竹汶', 'Sa Kaeo': '尖竹汶', 'Chachoengsao': '尖竹汶', 'Nakhon Nayok': '尖竹汶',
+    'Kanchanaburi': '叻丕', '北碧': '叻丕', 'Ratchaburi': '叻丕', '叻丕': '叻丕', 'Phetchaburi': '叻丕', '佛丕': '叻丕', 'Prachuap Khiri Khan': '叻丕', '巴蜀': '叻丕'
+};
+const siamCountyToFuMap = {
+    '清迈': '兰纳', '彭世洛': '彭世洛', '阿瑜陀耶': '中部核心', '叻丕': '中部核心', '尖竹汶': '中部核心', '呵叻': '伊善地区', '洛坤': '马来半岛', '北大年': '马来半岛'
+};
+
+const vietnamToCountyMap = {
+    'Hanoi': '升龙', '河内': '升龙', 'Hai Phong': '升龙', '海防': '升龙', 'Bac Ninh': '升龙', '北宁': '升龙', 'Nam Dinh': '山南', '南定': '山南', 'Ninh Binh': '山南', '宁平': '山南', 'Thai Binh': '山南', '太平': '山南', 'Vinh Phuc': '山南', '永福': '山南', 'Hung Yen': '山南', '兴安': '山南', 'Hai Duong': '海阳', '海阳': '海阳', 'Ha Nam': '山南', '河南': '山南',
+    'Quang Ninh': '海阳', '广宁': '海阳', 'Lang Son': '海阳', '谅山': '海阳', 'Bac Giang': '海阳', '北江': '海阳', 'Thai Nguyen': '海阳', '太原': '海阳', 'Cao Bang': '海阳', '高平': '海阳', 'Bac Kan': '海阳', '北干': '海阳',
+    'Phu Tho': '山西', '富寿': '山西', 'Tuyen Quang': '山西', '宣光': '山西', 'Ha Giang': '山西', '河江': '山西', 'Yen Bai': '山西', '安沛': '山西', 'Lao Cai': '山西', '老街': '山西',
+    'Hoa Binh': '兴化', '和平': '兴化', 'Son La': '兴化', '山罗': '兴化', 'Dien Bien': '兴化', '奠边': '兴化', 'Lai Chau': '兴化', '莱州': '兴化',
+    'Thanh Hoa': '清化', '清化': '清化', 'Nghe An': '乂安', '乂安': '乂安', 'Ha Tinh': '乂安', '河静': '乂安',
+    'Quang Binh': '顺化', '广平': '顺化', 'Quang Tri': '顺化', '广治': '顺化', 'Thua Thien Hue': '顺化', '承天顺化': '顺化',
+    'Da Nang': '广南', '岘港': '广南', 'Quang Nam': '广南', '广南': '广南', 'Quang Ngai': '广南', '广义': '广南',
+    'Binh Dinh': '归仁', '平定': '归仁', 'Phu Yen': '归仁', '富安': '归仁', 'Khanh Hoa': '归仁', '庆和': '归仁', 'Kon Tum': '归仁', '昆嵩': '归仁', 'Gia Lai': '归仁', '嘉莱': '归仁', 'Dak Lak': '归仁', '多乐': '归仁',
+    'Ninh Thuan': '宾童龙', '宁顺': '宾童龙', 'Binh Thuan': '宾童龙', '平顺': '宾童龙', 'Lam Dong': '宾童龙', '林同': '宾童龙', 'Dak Nong': '宾童龙', '得农': '宾童龙',
+    'Ho Chi Minh': '水真腊', '胡志明': '水真腊', 'Dong Nai': '水真腊', '同奈': '水真腊', 'Binh Duong': '水真腊', '平阳': '水真腊', 'Ba Ria-Vung Tau': '水真腊', '巴地头顿': '水真腊', 'Tay Ninh': '水真腊', '西宁': '水真腊', 'Binh Phuoc': '水真腊', '平福': '水真腊', 'Long An': '水真腊', '隆安': '水真腊', 'Tien Giang': '水真腊', '前江': '水真腊', 'Ben Tre': '水真腊', '槟椥': '水真腊', 'Dong Thap': '水真腊', '同塔': '水真腊', 'Vinh Long': '水真腊', '永隆': '水真腊', 'Tra Vinh': '水真腊', '茶荣': '水真腊', 'Can Tho': '水真腊', '芹苴': '水真腊', 'Hau Giang': '水真腊', '后江': '水真腊', 'An Giang': '水真腊', '安江': '水真腊', 'Kien Giang': '水真腊', '坚江': '水真腊', 'Soc Trang': '水真腊', '朔庄': '水真腊', 'Bac Lieu': '水真腊', '薄寮': '水真腊', 'Ca Mau': '水真腊', '金瓯': '水真腊'
+};
+const vietnamCountyToFuMap = {
+    '升龙': '交趾', '山南': '交趾', '海阳': '交趾', '山西': '交趾', '兴化': '交趾', '清化': '清华', '乂安': '清华', // 郑主辖区
+    '顺化': '顺化', '广南': '广南', '归仁': '占城', '宾童龙': '占城', '水真腊': '水真腊' // 广南辖区
+};
+
+const mughalToCountyMap = {
+    'Dhaka': '孟加拉东', '达卡': '孟加拉东', 'Chittagong': '孟加拉东', '吉大港': '孟加拉东', 'Sylhet': '孟加拉东', 'Rajshahi': '孟加拉东', 'Khulna': '孟加拉东', 'Barisal': '孟加拉东', 'Rangpur': '孟加拉东', 'Mymensingh': '孟加拉东',
+    'Punjab': '旁遮普', '旁遮普': '旁遮普', 'Islamabad': '旁遮普', '伊斯兰堡': '旁遮普', 'Himachal': '旁遮普', '喜马偕尔': '旁遮普',
+    'Sindh': '信德', '信德': '信德', 'Balochistan': '俾路支', '俾路支': '俾路支', 'Khyber': '开伯尔', '开伯尔': '开伯尔', 'FATA': '开伯尔',
+    'Delhi': '德里', '德里': '德里', 'Haryana': '德里', '哈里亚纳': '德里', 'Chandigarh': '德里', '昌迪加尔': '德里',
+    'Uttar Pradesh': '阿瓦德', '北方邦': '阿瓦德', 'Uttarakhand': '阿瓦德', '北阿坎德': '阿瓦德',
+    'Bihar': '比哈尔', '比哈尔': '比哈尔', 'Jharkhand': '比哈尔', '贾坎德': '比哈尔',
+    // 【修改点】：剔除了特里普拉(Tripura)和梅加拉亚(Meghalaya)，保证孟加拉西绝对只在西边
+    'West Bengal': '孟加拉西', '西孟加拉': '孟加拉西', 
+    // 【修改点】：将它们并入阿萨姆，在地理上它们正好构成连续的印度东北部板块，完美消除飞地
+    'Assam': '阿萨姆', '阿萨姆': '阿萨姆', 'Arunachal': '阿萨姆', '阿鲁纳恰尔': '阿萨姆', 'Nagaland': '阿萨姆', '那加兰': '阿萨姆', 'Manipur': '阿萨姆', '曼尼普尔': '阿萨姆', 'Mizoram': '阿萨姆', '米佐拉姆': '阿萨姆', 'Tripura': '阿萨姆', '特里普拉': '阿萨姆', 'Meghalaya': '阿萨姆', '梅加拉亚': '阿萨姆',
+    'Odisha': '奥里萨', '奥里萨': '奥里萨', 'Orissa': '奥里萨',
+    'Madhya Pradesh': '中央邦', '中央邦': '中央邦', 'Chhattisgarh': '中央邦', '恰蒂斯加尔': '中央邦',
+    'Rajasthan': '拉贾斯坦', '拉贾斯坦': '拉贾斯坦',
+    'Gujarat': '古吉拉特', '古吉拉特': '古吉拉特', 'Daman': '古吉拉特', '达曼': '古吉拉特', 'Dadra': '古吉拉特', '达德拉': '古吉拉特',
+    'Maharashtra': '马哈拉施特拉', '马哈拉施特拉': '马哈拉施特拉', 'Goa': '马哈拉施特拉', '果阿': '马哈拉施特拉',
+    'Telangana': '特伦甘纳', '特伦甘纳': '特伦甘纳', 'Andhra Pradesh': '特伦甘纳', '安得拉': '特伦甘纳',
+    'Karnataka': '卡纳塔克', '卡纳塔克': '卡纳塔克',
+    'Tamil Nadu': '马杜赖', '泰米尔纳德': '马杜赖', 'Kerala': '马杜赖', '喀拉拉': '马杜赖', 'Puducherry': '马杜赖', '本地治里': '马杜赖', 'Lakshadweep': '马杜赖',
+    'Jammu': '喀什米尔', '查谟': '喀什米尔', 'Kashmir': '喀什米尔', '克什米尔': '喀什米尔', 'Ladakh': '喀什米尔', '拉达克': '喀什米尔', 'Gilgit': '喀什米尔', 'Azad Kashmir': '喀什米尔'
+};
+
+const mughalCountyToFuMap = {
+    '旁遮普': '拉合尔', '信德': '穆尔坦', '俾路支': '穆尔坦', '开伯尔': '喀布尔', '喀什米尔': '喀布尔',
+    '德里': '德里', '阿瓦德': '德里', '拉贾斯坦': '阿杰梅尔', '古吉拉特': '古吉拉特', '中央邦': '摩尔瓦',
+    '比哈尔': '比哈尔', '奥里萨': '比哈尔', '孟加拉西': '孟加拉', '孟加拉东': '孟加拉', '阿萨姆': '阿萨姆',
+    '马哈拉施特拉': '德干', '特伦甘纳': '德干', '卡纳塔克': '德干', '马杜赖': '南印度'
+};
 
 
 const mingProvinceColors = {
@@ -305,7 +449,28 @@ const mingFuZhouCenters = {
         {name:'庆尚道', lng: 128.60, lat: 35.85},
         {name:'全罗道', lng: 126.95, lat: 35.16}
     ],
-
+        '喀尔喀': [
+        {name:'土谢图汗部', lng:106.90, lat:47.92}, 
+        {name:'车臣汗部', lng:114.50, lat:48.07}, 
+        {name:'扎萨克图汗部', lng:96.84, lat:47.74}, 
+        {name:'和托辉特部', lng:92.00, lat:49.00}
+    ],
+    '尼婆罗': [
+        {name:'马拉王朝', lng:85.32, lat:27.71}, 
+        {name:'乔比西诸国', lng:83.98, lat:28.21}, 
+        {name:'拜塞诸国', lng:82.00, lat:29.00}, 
+        {name:'森王朝', lng:87.28, lat:26.81}
+    ],
+    '不丹': [
+        {name:'西不丹', lng:89.41, lat:27.43}, 
+        {name:'中不丹', lng:89.87, lat:27.58}, 
+        {name:'东不丹', lng:90.50, lat:27.50}
+    ],
+        '澜沧': [{name:'琅勃拉邦', lng:102.14, lat:19.89}, {name:'万象', lng:102.60, lat:17.96}, {name:'占巴塞', lng:105.88, lat:15.11}, {name:'勐潘', lng:103.20, lat:19.30}],
+    '暹罗': [{name:'北部', lng:99.00, lat:18.80}, {name:'中部核心', lng:100.50, lat:14.30}, {name:'伊善地区', lng:102.80, lat:16.00}, {name:'马来半岛', lng:99.80, lat:8.40}],
+    '郑主': [{name:'交趾', lng:105.85, lat:21.02}, {name:'清华', lng:105.60, lat:19.30}],
+    '广南': [{name:'顺化', lng:107.59, lat:16.46}, {name:'广南', lng:108.20, lat:15.90}, {name:'占城', lng:109.10, lat:12.00}, {name:'水真腊', lng:106.60, lat:10.80}],
+    '莫卧儿': [{name:'德里', lng:77.20, lat:28.60}, {name:'拉合尔', lng:74.30, lat:31.50}, {name:'喀布尔', lng:69.10, lat:34.50}, {name:'孟加拉', lng:90.40, lat:23.80}, {name:'古吉拉特', lng:72.50, lat:22.30}, {name:'摩尔瓦', lng:77.40, lat:23.20}, {name:'德干', lng:75.30, lat:19.80}, {name:'比哈尔', lng:85.10, lat:25.60}, {name:'阿杰梅尔', lng:74.60, lat:26.40}, {name:'穆尔坦', lng:71.40, lat:30.20}, {name:'阿萨姆', lng:92.90, lat:26.10}, {name:'南印度', lng:78.10, lat:10.80}],
 };
 
 
@@ -1834,22 +1999,50 @@ async function fetchGeoJSON(adcode) {
             if (adcode === '100000') {
                 url = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
             } else if (adcode === '710000') {
-                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/tw.json'; 
+                url = 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/tw.json'; 
             } else if (adcode === 'JPN_1') {
-                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/japan/JPN_1.json'; // 日本1级
+                url = 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/japan/JPN_1.json'; // 日本1级
             } else if (adcode === 'JPN_2') {
-                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/japan/JPN_2.json'; // 日本2级
+                url = 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/japan/JPN_2.json'; // 日本2级
             } else if (adcode === 'KOR_1') {
-                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/Korea/KOR_1.json'; // 南韩1级
+                url = 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Korea/KOR_1.json'; // 南韩1级
             } else if (adcode === 'PRK_1') {
-                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/Korea/PRK_1.json'; // 北韩1级
+                url = 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Korea/PRK_1.json'; // 北韩1级
             } else if (adcode === 'KOR_2') {
-                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/Korea/KOR_2.json'; // 南韩2级
+                url = 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Korea/KOR_2.json'; // 南韩2级
             } else if (adcode === 'PRK_2') {
-                url = 'https://cdn.jsdelivr.net/gh/fairta/pic@main/map/Korea/PRK_2.json'; // 北韩2级
+                url = 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Korea/PRK_2.json'; // 北韩2级
             } else {
-                url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}_full.json`;
+                // ================= 新增：匹配你提供的周边外国真实下载直链 =================
+                const foreignUrls = {
+                    'MNG_1': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Mongolia-Khalkha/MNG_1.json',
+                    'MNG_2': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Mongolia-Khalkha/MNG_2.json',
+                    'NPL_1': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Nepal/NPL_1.json',
+                    'NPL_2': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Nepal/NPL_2.json',
+                    'BTN_1': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Bhutan/BTN_1.json',
+                    'BTN_2': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Bhutan/BTN_2.json',
+                    'LAO_1': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Laos-Lancang/LAO_1.json',
+                    'LAO_2': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Laos-Lancang/LAO_2.json',
+                    'THA_1': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Thailand-Siam/THA_1.json',
+                    'THA_2': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Thailand-Siam/THA_2.json',
+                    'VNM_1': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Vietnam-Zhengzhu-Guangnan/VNM_1.json',
+                    'VNM_2': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Vietnam-Zhengzhu-Guangnan/VNM_2.json',
+                    'BGD_1': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Mughal/BGD_1.json',
+                    'BGD_2': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Mughal/BGD_2.json',
+                    'IND_1': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Mughal/IND_1.json',
+                    'IND_2': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Mughal/IND_2.json',
+                    'PAK_1': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Mughal/PAK_1.json',
+                    'PAK_2': 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/Mughal/PAK_2.json'
+                };
+                
+                if (foreignUrls[adcode]) {
+                    url = foreignUrls[adcode];
+                } else {
+                    // 国内的依然走阿里云默认路由
+                    url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}_full.json`;
+                }
             }
+
 
             const resp = await fetch(url);
             if (!resp.ok) return null;
@@ -2125,6 +2318,14 @@ function mingMapStyleText() {
     /* 单独将关闭按钮强制为正圆形 */
     .header-btn.icon-btn { width: 36px; padding: 0; border-radius: 50%; font-size: 1.1rem; }
     
+    /* 日志按钮红点提示 */
+    .log-btn-wrapper { position: relative; display: inline-flex; align-items: center; }
+    .red-dot {
+        position: absolute; top: -2px; right: -8px; width: 8px; height: 8px;
+        background-color: #e74c3c; border-radius: 50%; display: none;
+        box-shadow: 0 0 6px rgba(231, 76, 60, 0.8);
+    }
+
     /* 面包屑导航及移动端防折行适配 */
     #breadcrumb-wrapper {
         display:flex; align-items:center; gap:8px;
@@ -2234,6 +2435,22 @@ function mingMapStyleText() {
     #legend-list li:hover { background: rgba(212, 175, 55, 0.15); }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.4); }
 
+    /* 更新日志弹窗样式 */
+    #update-modal {
+        display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6); z-index: 300; justify-content: center; align-items: center;
+        pointer-events: auto; backdrop-filter: blur(2px);
+    }
+    .update-panel {
+        background: var(--panel-bg); border: 1px solid var(--highlight); border-radius: 12px;
+        width: 85%; max-width: 450px; padding: 20px; box-shadow: var(--shadow); position: relative;
+        display: flex; flex-direction: column;
+    }
+    .update-panel h3 { color: var(--highlight); margin-bottom: 15px; text-align: center; font-size: 1.1rem; }
+    .update-content { color: var(--text); font-size: 0.9rem; line-height: 1.6; max-height: 50vh; overflow-y: auto; padding-right: 8px; }
+    .update-content::-webkit-scrollbar { width: 4px; }
+    .update-content::-webkit-scrollbar-thumb { background: #3a5070; border-radius: 2px; }
+
     /* 移动端完美对齐适配 */
     @media (max-width: 768px) {
         #header { padding: 10px 12px; }
@@ -2267,6 +2484,11 @@ function renderMingMapPanelHTML() {
     <div id="app-container">
         <div id="header">
             <div id="breadcrumb-wrapper">
+                <span class="log-btn-wrapper" style="margin-right:4px;">
+                    <span class="crumb" data-action="show-update" title="查看更新日志" style="cursor:pointer; color:var(--highlight);">日志</span>
+                    <span class="red-dot" id="update-red-dot"></span>
+                </span>
+                <span class="separator" style="color:var(--text-secondary); margin-right:4px;">|</span>
                 <div id="breadcrumb"><span class="crumb current" data-action="back-nation">🌏 天下</span></div>
             </div>
             <div class="header-actions">
@@ -2290,6 +2512,7 @@ function renderMingMapPanelHTML() {
             <div class="ctrl-btn" data-action="reset" title="重置视野">↺</div>
             <div class="ctrl-btn" data-action="zoom-out" title="缩小">－</div>
             <div class="ctrl-btn locate-btn" data-action="locate-hero" title="定位主角">🎯</div>
+            <div class="ctrl-btn" id="mode-toggle-btn" data-action="toggle-mode" title="切换模式(当前:单层)" style="margin-top:10px; font-size:1.1rem; color:#8899aa;">🗺️</div>
         </div>
         
         <div id="map-container"><div id="map-chart"></div></div>
@@ -2299,6 +2522,40 @@ function renderMingMapPanelHTML() {
                 <span id="legend-toggle-icon">▲</span>
             </div>
             <div id="legend-list-wrapper"><ul id="legend-list"></ul></div>
+        </div>
+        
+        <!-- 更新日志弹窗 -->
+        <div id="update-modal">
+            <div class="update-panel">
+                <button class="header-btn icon-btn" data-action="close-update" style="position:absolute; top:12px; right:12px;">✖</button>
+                <h3>📢 更新日志</h3>
+                <div class="update-content">
+                    <!-- ================================== -->
+                    <!-- 👇由你在此处修改更新日志内容👇 -->
+                    <p><b>[7.24更新] ：</b></p>
+                    <p>1、添加全景地图，右侧按钮切换，首次使用会有一定的加载时间，双击区域可返回</p>
+                    <p>2、新增国外地图</p>
+                    <p>3、彩石佬的新地图暂时没适配<img src="https://cdn.jsdelivr.net/gh/fairta/pic@main/img/2026/07/20260724203844218-39c93f.webp" alt="" width="20" height="20"></p>
+
+                    <p><b>[7.22更新] ：</b></p>
+                    <p>1、云端在线地图，后续无需重复下载更新</p>
+                    <p>2、添加日本、朝鲜地图，其中朝鲜地图因与现在误差较大，仅供参考</p>
+
+                    <p><b>[7.20更新] ：</b></p>
+                    <p>1、优化手机端使用</p>
+                    <p>2、添加个别地区第二层、第三层数据</p>
+                    <p>3、修复城市名称和已知bug</p>
+                    <p>4、优化搜索功能</p>  
+
+                    <p><b>[7.18更新] ：</b></p>
+                    <p>1、添加主角位置</p>
+                    <p>2、优化搜索功能，图例添加折叠</p>
+                    <p>3、去除重复城市名字</p>
+                    <p>4、三级地图，一层省份，二层州府卫，三层县 地图仅用于参考，用的现代地图修改，与实际明末地图有出入。</p>
+
+                    <!-- ================================== -->
+                </div>
+            </div>
         </div>
     </div>`;
 }
@@ -2498,7 +2755,61 @@ function buildCountyIndex() {
         { prov: '朝鲜', fu: '黄海道', counties: ['海州牧', '凤山郡', '黄州牧', '瓮津都护府', '延安都护府', '康翎县', '长渊县', '安岳郡', '松禾县', '殷栗县', '丰川都护府', '信川郡', '载宁郡', '遂安郡', '中和都护府', '谷山都护府', '平山都护府', '金川郡', '新溪县', '白川郡'] },
         
         // 琉球
-        { prov: '琉球', fu: '琉球国', counties: ['中山'] }
+        { prov: '琉球', fu: '琉球国', counties: ['中山'] },
+        
+        // 喀尔喀
+        { prov: '喀尔喀', fu: '土谢图汗部', counties: ['库伦', '土谢图中部', '土谢图北部', '土谢图南部', '戈壁诸部', '土谢图西部'] },
+        { prov: '喀尔喀', fu: '车臣汗部', counties: ['车臣汗中部', '车臣汗东部', '车臣汗南部', '车臣汗西南部'] },
+        { prov: '喀尔喀', fu: '扎萨克图汗部', counties: ['扎萨克图中部', '扎萨克图南部', '扎萨克图西部', '赛音诺颜部'] },
+        { prov: '喀尔喀', fu: '和托辉特部', counties: ['唐努乌梁海', '科布多', '杜尔伯特部', '阿尔泰乌梁海'] },
+        
+        // 尼婆罗
+        { prov: '尼婆罗', fu: '拜塞诸国', counties: ['多提王国', '朱姆拉王国'] },
+        { prov: '尼婆罗', fu: '乔比西诸国', counties: ['帕尔帕王国', '卡斯基王国'] },
+        { prov: '尼婆罗', fu: '马拉王朝', counties: ['坎提普尔'] },
+        { prov: '尼婆罗', fu: '森王朝', counties: ['玛克万普尔', '维阇耶补罗'] },
+        
+        // 不丹
+        { prov: '不丹', fu: '西不丹', counties: ['帕罗宗', '哈宗', '萨姆奇', '楚卡'] },
+        { prov: '不丹', fu: '中不丹', counties: ['廷布宗', '加萨宗', '普那卡宗', '旺杜波德朗', '达加纳', '奇朗'] },
+        { prov: '不丹', fu: '东不丹', counties: ['同萨宗', '布姆唐', '谢姆冈', '萨尔庞', '蒙加尔', '塔西冈宗', '伦奇', '塔西央奇', '佩马加策尔', '萨姆德鲁琼卡尔'] },
+
+        // 澜沧
+        { prov: '澜沧', fu: '万象', counties: ['万象', '赛宋奔', '波里坎塞'] },
+        { prov: '澜沧', fu: '琅勃拉邦', counties: ['琅勃拉邦', '乌多姆塞', '丰沙里', '琅南塔', '博胶', '沙耶武里'] },
+        { prov: '澜沧', fu: '勐潘', counties: ['川圹', '华潘'] },
+        { prov: '澜沧', fu: '占巴塞', counties: ['占巴塞', '沙湾拿吉', '甘蒙', '沙拉湾', '塞贡', '阿速坡'] },
+
+        // 暹罗
+        { prov: '暹罗', fu: '中部核心', counties: ['阿瑜陀耶', '叻丕', '尖竹汶'] },
+        { prov: '暹罗', fu: '兰纳', counties: ['清迈'] },
+        { prov: '暹罗', fu: '彭世洛', counties: ['彭世洛'] },
+        { prov: '暹罗', fu: '伊善地区', counties: ['呵叻'] },
+        { prov: '暹罗', fu: '马来半岛', counties: ['洛坤', '北大年'] },
+
+        // 郑主 (北越)
+        { prov: '郑主', fu: '交趾', counties: ['升龙', '山南', '海阳', '山西', '兴化'] },
+        { prov: '郑主', fu: '清华', counties: ['清化', '乂安'] },
+
+        // 广南 (南越)
+        { prov: '广南', fu: '顺化', counties: ['顺化'] },
+        { prov: '广南', fu: '广南', counties: ['广南'] },
+        { prov: '广南', fu: '占城', counties: ['归仁', '宾童龙'] },
+        { prov: '广南', fu: '水真腊', counties: ['水真腊'] },
+
+        // 莫卧儿
+        { prov: '莫卧儿', fu: '拉合尔', counties: ['旁遮普'] },
+        { prov: '莫卧儿', fu: '穆尔坦', counties: ['信德', '俾路支'] },
+        { prov: '莫卧儿', fu: '喀布尔', counties: ['开伯尔', '喀什米尔'] },
+        { prov: '莫卧儿', fu: '德里', counties: ['德里', '阿瓦德'] },
+        { prov: '莫卧儿', fu: '阿杰梅尔', counties: ['拉贾斯坦'] },
+        { prov: '莫卧儿', fu: '古吉拉特', counties: ['古吉拉特'] },
+        { prov: '莫卧儿', fu: '摩尔瓦', counties: ['中央邦'] },
+        { prov: '莫卧儿', fu: '比哈尔', counties: ['比哈尔', '奥里萨'] },
+        { prov: '莫卧儿', fu: '孟加拉', counties: ['孟加拉东', '孟加拉西'] },
+        { prov: '莫卧儿', fu: '阿萨姆', counties: ['阿萨姆'] },
+        { prov: '莫卧儿', fu: '德干', counties: ['马哈拉施特拉', '特伦甘纳', '卡纳塔克'] },
+        { prov: '莫卧儿', fu: '南印度', counties: ['马杜赖'] }
     ];
 
     // 将外国历史地名正式写入大明搜索字典
@@ -2867,8 +3178,62 @@ function removeJapanIslands(feature) {
 }
 
 
+// ==========================================
+// 地图区域合并辅助函数 (增强版：彻底消除内部碎线/虚线)
+// ==========================================
+async function mergeFeaturesWithTurf(feats, name) {
+    if (feats.length === 1) {
+        const f = JSON.parse(JSON.stringify(feats[0]));
+        f.properties.name = name;
+        return f;
+    }
+
+    if (!window.turf) {
+        await new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js';
+            script.onload = resolve;
+            document.head.appendChild(script);
+        });
+    }
+
+    try {
+        let merged = JSON.parse(JSON.stringify(feats[0]));
+        for (let i = 1; i < feats.length; i++) {
+            merged = window.turf.union(merged, feats[i]);
+        }
+        
+        // 【核心修复】：清除多边形的“内环（孔洞）”
+        // 抹除合并时因微小缝隙产生的内部碎块，避免 Echarts 渲染出内部虚线
+        if (merged && merged.geometry) {
+            if (merged.geometry.type === 'Polygon') {
+                // GeoJSON 的 Polygon 结构为 [外部轮廓, 内部孔洞1, 内部孔洞2...]
+                // 我们只保留 [0] 外部轮廓，丢弃所有内部孔洞
+                merged.geometry.coordinates = [merged.geometry.coordinates[0]];
+            } else if (merged.geometry.type === 'MultiPolygon') {
+                // 遍历每个子多边形，只保留外部轮廓
+                merged.geometry.coordinates = merged.geometry.coordinates.map(poly => [poly[0]]);
+            }
+        }
+        
+        merged.properties.name = name;
+        return merged;
+    } catch (e) {
+        // 如果合并失败则回退到简单拼接
+        const base = JSON.parse(JSON.stringify(feats[0]));
+        base.properties.name = name;
+        const all = [];
+        feats.forEach(f => {
+            if (f.geometry.type === 'Polygon') all.push(f.geometry.coordinates);
+            else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(c => all.push(c));
+        });
+        base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
+        return base;
+    }
+}
+
+
 // 获取第二层：府州边界
-// 替换代码
 async function buildMingPrefectureGeoJSON(mingName) {
 
     // ================= 新增：独立处理琉球数据 =================
@@ -2882,99 +3247,156 @@ async function buildMingPrefectureGeoJSON(mingName) {
     }
     // =========================================================
 
-    // ================= 新增：专属拦截日本数据并处理 =================
-    if (mingName === '日本') {
-        const jpGeo = await fetchGeoJSON('JPN_1');
-        if (!jpGeo || !jpGeo.features) return null;
-        
-        const fuMap = {};
-        jpGeo.features.forEach(f => {
-            let rawName = f.properties.NL_NAME_1 || f.properties.NAME_1 || '';
-            let cleanName = rawName.replace(/[都道府県]$/, ''); // 切除都道府县后缀
-            if (cleanName === '沖縄') return; // 跳过冲绳，使其不出现在日本版图中
-            let edoName = japanToEdoMap[cleanName] || cleanName; // 映射为江户地名
-            let regionName = edoToRegionMap[edoName] || edoName; // 映射为五畿七道等
-            
-            // 【修改这行】：在深拷贝后，套上一层 removeJapanIslands 函数
-            let newF = removeJapanIslands(JSON.parse(JSON.stringify(f)));
-            newF.properties.name = regionName;
-            
-            if (!fuMap[regionName]) fuMap[regionName] = [];
-            fuMap[regionName].push(newF);
-        });
-
-
-        const features = [];
-        Object.keys(fuMap).forEach(fu => {
-            const feats = fuMap[fu];
-            if (feats.length === 1) {
-                features.push(feats[0]);
-            } else {
-                // 如果多个现代县对应同一个道，进行多边形合并
-                const base = feats[0];
-                const all = [];
-                feats.forEach(f => {
-                    if (f.geometry.type === 'Polygon') all.push(f.geometry.coordinates);
-                    else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(c => all.push(c));
-                });
-                base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
-                features.push(base);
+    // ================= 统一周边外国高级数据映射 (渲染 Level 1) =================
+    const customForeignMap = {
+        '日本': { 
+            codes: ['JPN'], 
+            processFeature: (f) => {
+                let newF = removeJapanIslands(f);
+                if (!newF) return null;
+                let rawName = newF.properties.NL_NAME_1 || newF.properties.NAME_1 || '';
+                let cleanName = rawName.replace(/[都道府県]$/, '');
+                if (cleanName === '沖縄') return null;
+                let edoName = japanToEdoMap[cleanName] || cleanName;
+                newF.properties.name = edoToRegionMap[edoName] || edoName;
+                return newF;
             }
-        });
-        return { type: 'FeatureCollection', features };
-    }
-        // ================= 新增：专属拦截朝鲜数据并重组为八道 =================
-    if (mingName === '朝鲜') {
-        const korGeo = await fetchGeoJSON('KOR_1');
-        const prkGeo = await fetchGeoJSON('PRK_1');
-        if (!korGeo || !prkGeo) return null;
-
-        const fuMap = {};
-
-        // 辅助函数：处理单边数据
-        const processKoreaLevel1 = (geoData) => {
-            geoData.features.forEach(f => {
+        },
+        '朝鲜': { 
+            codes: ['KOR', 'PRK'], 
+            processFeature: (f) => {
                 let rawName = f.properties.NAME_1 || f.properties.NL_NAME_1 || '';
-                let paldoName = koreaToJoseonMap[rawName] || '京畿道'; // 匹配八道，默认兜底京畿道
-                
-                let newF = JSON.parse(JSON.stringify(f));
-                newF.properties.name = paldoName;
-                
-                if (!fuMap[paldoName]) fuMap[paldoName] = [];
-                fuMap[paldoName].push(newF);
-            });
-        };
+                f.properties.name = koreaToJoseonMap[rawName] || '京畿道';
+                return f;
+            }
+        },
+        '喀尔喀': { codes: ['MNG'], map1: khalkhaToCountyMap, map2: khalkhaCountyToFuMap },
+        '尼婆罗': { codes: ['NPL'], map1: nepalToCountyMap, map2: nepalCountyToFuMap },
+        '不丹': { codes: ['BTN'], map1: bhutanToCountyMap, map2: bhutanCountyToFuMap },
+        '澜沧': { codes: ['LAO'], map1: lancangToCountyMap, map2: lancangCountyToFuMap },
+        '暹罗': { codes: ['THA'], map1: siamToCountyMap, map2: siamCountyToFuMap },
+        '郑主': { codes: ['VNM'], map1: vietnamToCountyMap, map2: vietnamCountyToFuMap, validFus: ['交趾', '清华'] },
+        '广南': { codes: ['VNM'], map1: vietnamToCountyMap, map2: vietnamCountyToFuMap, validFus: ['顺化', '广南', '占城', '水真腊'] },
+        '莫卧儿': { codes: ['IND', 'PAK', 'BGD'], map1: mughalToCountyMap, map2: mughalCountyToFuMap }
+    };
 
-        processKoreaLevel1(korGeo);
-        processKoreaLevel1(prkGeo);
+    if (customForeignMap[mingName]) {
+        const conf = customForeignMap[mingName];
+        const fuMap = {};
+
+        for (let code of conf.codes) {
+            const geoData = await fetchGeoJSON(`${code}_1`);
+            if (!geoData || !geoData.features) continue;
+
+            let currentFeatures = JSON.parse(JSON.stringify(geoData.features));
+
+            if (mingName === '郑主') {
+                currentFeatures = currentFeatures.filter(f => { let c = getFeatureCenter(f); return c && c[1] >= 17.5; });
+            } else if (mingName === '广南') {
+                currentFeatures = currentFeatures.filter(f => { let c = getFeatureCenter(f); return c && c[1] < 17.5; });
+            }
+
+            let mappedFeatures = [];
+            let unmappedFeatures = [];
+
+            if (conf.processFeature) {
+                // 执行日韩等专属函数的精准映射
+                currentFeatures.forEach(f => {
+                    let newF = conf.processFeature(f);
+                    if (newF && newF.properties.name) mappedFeatures.push(newF);
+                });
+            } else {
+                // 执行其他外国的模糊文本映射
+                let sortedKeys = Object.keys(conf.map1).sort((a, b) => b.length - a.length);
+                currentFeatures.forEach(f => {
+                    f.properties = f.properties || {}; 
+                    let allProps = Object.values(f.properties).filter(v => typeof v === 'string')
+                                    .join('|').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\-_]/g, "");
+                    let countyName = null;
+                    for (let k of sortedKeys) {
+                        let cleanK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\-_]/g, "");
+                        if (cleanK.length >= 2 && allProps.includes(cleanK)) { countyName = conf.map1[k]; break; }
+                    }
+                    f.properties._center = getFeatureCenter(f) || [0, 0];
+                    if (countyName) {
+                        let fuName = conf.map2[countyName] || countyName;
+                        if (conf.validFus && !conf.validFus.includes(fuName)) {
+                            fuName = mingName === '郑主' ? '清华' : (mingName === '广南' ? '顺化' : conf.validFus[0]);
+                        }
+                        f.properties.name = fuName;
+                        mappedFeatures.push(f);
+                    } else {
+                        unmappedFeatures.push(f);
+                    }
+                });
+
+                // 碎片物理吸附
+                unmappedFeatures.forEach(uf => {
+                    if (mappedFeatures.length > 0) {
+                        let closestFu = mappedFeatures[0].properties.name;
+                        let minD = Infinity;
+                        mappedFeatures.forEach(mf => {
+                            let dx = uf.properties._center[0] - mf.properties._center[0];
+                            let dy = uf.properties._center[1] - mf.properties._center[1];
+                            let d = dx*dx + dy*dy;
+                            if (d < minD) { minD = d; closestFu = mf.properties.name; }
+                        });
+                        uf.properties.name = closestFu;
+                    } else {
+                        uf.properties.name = conf.validFus ? conf.validFus[0] : Object.values(conf.map2)[0];
+                    }
+                    mappedFeatures.push(uf);
+                });
+            }
+
+            mappedFeatures.forEach(f => {
+                let fuName = f.properties.name;
+                if (!fuMap[fuName]) fuMap[fuName] = [];
+                fuMap[fuName].push(f);
+            });
+        }
 
         const features = [];
-        Object.keys(fuMap).forEach(fu => {
-            const feats = fuMap[fu];
-            if (feats.length === 1) {
-                features.push(feats[0]);
-            } else {
-                // 如果多块现代道对应同一个历史八道（例如南北江原道），进行多边形合并
-                const base = feats[0];
-                const all = [];
-                feats.forEach(f => {
-                    if (f.geometry.type === 'Polygon') all.push(f.geometry.coordinates);
-                    else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(c => all.push(c));
-                });
-                base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
-                features.push(base);
-            }
-        });
+        // 这里会自动调用增强版的 Turf.js 逻辑进行融合并去除虚线孔洞
+        for (const fu of Object.keys(fuMap)) {
+            const mergedFeat = await mergeFeaturesWithTurf(fuMap[fu], fu);
+            features.push(mergedFeat);
+        }
         return { type: 'FeatureCollection', features };
+    }
+
+
+    // 2. 普通外国国家（已移除在此重复的郑主和广南，防止逻辑冲突）
+    const genericForeignCodes = {
+        '莫卧儿': ['IND', 'PAK', 'BGD'], 
+        '澜沧': ['LAO'], '暹罗': ['THA']
+    };
+
+    if (genericForeignCodes[mingName]) {
+        const codes = genericForeignCodes[mingName];
+        let features = [];
+        for (let code of codes) {
+            const geoData = await fetchGeoJSON(`${code}_1`); 
+            if (geoData && geoData.features) {
+                geoData.features.forEach(f => {
+                    let newF = JSON.parse(JSON.stringify(f));
+                    let prefName = newF.properties.NL_NAME_1 || newF.properties.NAME_1 || '未知区域';
+                    newF.properties.name = prefName;
+                    features.push(newF);
+                });
+            }
+        }
+        return { type: 'FeatureCollection', features: features };
     }
     // =============================================================
 
-    // =============================================================
+
 
     if (!mingMapNationGeoJSON) {
-        mingMapChartInstance.showLoading({text:'拉取细分边界...', color:'#d4af37', maskColor:'rgba(10,14,23,0.8)'});
+        // 【核心修复】：删除内层的 showLoading 和 hideLoading
+        // 坚决防止内层提前关闭外层的大遮罩，让遮罩稳稳挡住屏幕直到数据处理完毕
+        // 这样玩家就不会误以为卡顿没点上而点第二次
         mingMapNationGeoJSON = await fetchGeoJSON('100000');
-        mingMapChartInstance.hideLoading();
         if (!mingMapNationGeoJSON) return null;
     }
     
@@ -3148,23 +3570,11 @@ async function buildMingPrefectureGeoJSON(mingName) {
     if (!Object.keys(fuMap).length) return null;
     
     const features = [];
-    Object.keys(fuMap).forEach(fu => {
-        const feats = fuMap[fu];
-        if (feats.length===1) {
-            const f = JSON.parse(JSON.stringify(feats[0]));
-            f.properties.name = fu; features.push(f);
-        } else {
-            const base = JSON.parse(JSON.stringify(feats[0]));
-            base.properties.name = fu;
-            const all = [];
-            feats.forEach(f => {
-                if (f.geometry.type==='Polygon') all.push(f.geometry.coordinates);
-                else if (f.geometry.type==='MultiPolygon') f.geometry.coordinates.forEach(c=>all.push(c));
-            });
-            base.geometry = all.length===1 ? {type:'Polygon',coordinates:all[0]} : {type:'MultiPolygon',coordinates:all};
-            features.push(base);
-        }
-    });
+    // 替换为 for...of 异步循环，调用 Turf 进行完美消除缝隙融合
+    for (const fu of Object.keys(fuMap)) {
+        const mergedFeat = await mergeFeaturesWithTurf(fuMap[fu], fu);
+        features.push(mergedFeat);
+    }
     return {type:'FeatureCollection',features};
 }
 
@@ -3181,174 +3591,195 @@ async function buildMingCountyGeoJSON(mingProv, mingFu) {
         }
         return null;
     }
-    // ================= 新增：专属拦截日本区县数据并古风化 =================
-    if (mingProv === '日本') {
-        const jpGeo = await fetchGeoJSON('JPN_1');
-        if (!jpGeo || !jpGeo.features) return null;
-
-        const countyMap = {};
-        jpGeo.features.forEach(f => {
-            let prefName = f.properties.NL_NAME_1 || f.properties.NAME_1 || '';
-            let cleanPrefName = prefName.replace(/[都道府県]$/, '');
-            let edoName = japanToEdoMap[cleanPrefName] || cleanPrefName;
-            let regionName = edoToRegionMap[edoName] || edoName;
-            
-            // 归属当前被点击的五畿七道
-            if (regionName === mingFu) { 
-                // 【修改这行】：在深拷贝后，套上一层 removeJapanIslands 函数
-                let newF = removeJapanIslands(JSON.parse(JSON.stringify(f)));
-                newF.properties.name = edoName; // 以令制国作为第三层的名称
-                
-                if (!countyMap[edoName]) countyMap[edoName] = [];
-                countyMap[edoName].push(newF);
+    // ================= 统一周边外国高级区县数据 (渲染 Level 2) =================
+    const customForeignMapCounty = {
+        '日本': { 
+            codes: ['JPN'], 
+            fetchLevel: 1, // 日本第3层仍然使用 Level 1 切分
+            processFeature: (f, targetFu) => {
+                let newF = removeJapanIslands(f);
+                if (!newF) return null;
+                let name = newF.properties.NL_NAME_1 || newF.properties.NAME_1 || '';
+                let clean = name.replace(/[都道府県]$/, '');
+                if (clean === '沖縄') return null;
+                let edo = japanToEdoMap[clean] || clean;
+                let region = edoToRegionMap[edo] || edo;
+                if (region === targetFu) {
+                    newF.properties._fu = region;
+                    newF.properties.name = edo;
+                    return newF;
+                }
+                return null;
             }
-        });
-
-
-        const mergedFeatures = [];
-        Object.keys(countyMap).forEach(cName => {
-            const feats = countyMap[cName];
-            if (feats.length === 1) {
-                mergedFeatures.push(feats[0]);
-            } else {
-                const base = feats[0];
-                const all = [];
-                feats.forEach(f => {
-                    if (f.geometry.type === 'Polygon') {
-                        all.push(f.geometry.coordinates);
-                    } else if (f.geometry.type === 'MultiPolygon') {
-                        f.geometry.coordinates.forEach(c => all.push(c));
-                    }
-                });
-                base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
-                mergedFeatures.push(base);
-            }
-        });
-
-        return { type: 'FeatureCollection', features: mergedFeatures };
-    }
-    // ================= 新增：专属拦截朝鲜区县数据并古风化 =================
-    if (mingProv === '朝鲜') {
-        const korGeo = await fetchGeoJSON('KOR_2');
-        const prkGeo = await fetchGeoJSON('PRK_2');
-        if (!korGeo || !prkGeo) return null;
-
-        const countyMap = {};
-        
-        // 核心直辖市/特辖市名单
-        const directCities = ['Seoul', 'Busan', 'Daegu', 'Incheon', 'Gwangju', 'Daejeon', 'Ulsan', 'Sejong', 'P\'yŏngyang', 'Namp\'o', 'Rasŏn', 'Kaesŏng', 'Jeju-do'];
-
-        const processKoreaLevel2 = (geoData) => {
-            if (!geoData.features) return;
-            
-            let mappedFeatures = [];
-            let unmappedFeatures = [];
-
-            geoData.features.forEach(f => {
+        },
+        '朝鲜': { 
+            codes: ['KOR', 'PRK'], 
+            fetchLevel: 2, 
+            processFeature: (f, targetFu) => {
                 let provName = f.properties.NAME_1 || f.properties.NL_NAME_1 || '';
                 let paldoName = koreaToJoseonMap[provName] || '京畿道';
-
-                // 只处理当前点击的“道”
-                if (paldoName === mingFu) {
+                if (paldoName === targetFu) {
                     let modernCounty = f.properties.NAME_2 || f.properties.NL_NAME_2 || '';
-                    
-                    // 剥离现代行政区划后缀，极大提高匹配精准度
                     let cleanCounty = modernCounty.replace(/[- ]?(si|gun|gu|do|shi|city|county)$/i, '').replace(/[市郡구군시]$/, '');
+                    const directCities = ['Seoul', 'Busan', 'Daegu', 'Incheon', 'Gwangju', 'Daejeon', 'Ulsan', 'Sejong', 'P\'yŏngyang', 'Namp\'o', 'Rasŏn', 'Kaesŏng', 'Jeju-do'];
                     let joseonName;
-
                     if (directCities.includes(provName)) {
                         joseonName = joseonCountyMap[provName];
                     } else {
                         joseonName = joseonCountyMap[cleanCounty] || joseonCountyMap[modernCounty];
                     }
+                    f.properties._fu = paldoName;
+                    f.properties.name = joseonName; // 允许为undefined，后续物理吸附
+                    return f;
+                }
+                return null;
+            }
+        },
+        '喀尔喀': { codes: ['MNG'], map1: khalkhaToCountyMap, map2: khalkhaCountyToFuMap },
+        '尼婆罗': { codes: ['NPL'], map1: nepalToCountyMap, map2: nepalCountyToFuMap },
+        '不丹': { codes: ['BTN'], map1: bhutanToCountyMap, map2: bhutanCountyToFuMap },
+        '澜沧': { codes: ['LAO'], map1: lancangToCountyMap, map2: lancangCountyToFuMap },
+        '暹罗': { codes: ['THA'], map1: siamToCountyMap, map2: siamCountyToFuMap },
+        '郑主': { codes: ['VNM'], map1: vietnamToCountyMap, map2: vietnamCountyToFuMap, validFus: ['交趾', '清华'] },
+        '广南': { codes: ['VNM'], map1: vietnamToCountyMap, map2: vietnamCountyToFuMap, validFus: ['顺化', '广南', '占城', '水真腊'] },
+        '莫卧儿': { codes: ['IND', 'PAK', 'BGD'], map1: mughalToCountyMap, map2: mughalCountyToFuMap }
+    };
 
-                    let newF = JSON.parse(JSON.stringify(f));
-                    // 预先计算该区域的几何中心点，为后续的“离近原则”计算做准备
-                    newF.properties._center = getFeatureCenter(f) || [0, 0];
+    if (customForeignMapCounty[mingProv]) {
+        const conf = customForeignMapCounty[mingProv];
+        const countyMap = {};
+        let sortedKeys = conf.map1 ? Object.keys(conf.map1).sort((a, b) => b.length - a.length) : [];
+        
+        for (let code of conf.codes) {
+            const geoData = await fetchGeoJSON(`${code}_${conf.fetchLevel || 1}`);
+            if (!geoData || !geoData.features) continue;
 
-                    if (joseonName) {
-                        newF.properties.name = joseonName;
+            let currentFeatures = JSON.parse(JSON.stringify(geoData.features));
+
+            if (mingProv === '郑主') {
+                currentFeatures = currentFeatures.filter(f => { let c = getFeatureCenter(f); return c && c[1] >= 17.5; });
+            } else if (mingProv === '广南') {
+                currentFeatures = currentFeatures.filter(f => { let c = getFeatureCenter(f); return c && c[1] < 17.5; });
+            }
+
+            let mappedFeatures = [];
+            let unmappedFeatures = [];
+
+            currentFeatures.forEach(f => {
+                f.properties = f.properties || {}; 
+                f.properties._center = getFeatureCenter(f) || [0, 0];
+
+                if (conf.processFeature) {
+                    let newF = conf.processFeature(f, mingFu);
+                    if (newF) {
+                        if (newF.properties.name) mappedFeatures.push(newF);
+                        else unmappedFeatures.push(newF);
+                    }
+                } else {
+                    let allProps = Object.values(f.properties).filter(v => typeof v === 'string')
+                                    .join('|').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\-_]/g, "");
+                    let countyName = null;
+                    for (let k of sortedKeys) {
+                        let cleanK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\-_]/g, "");
+                        if (cleanK.length >= 2 && allProps.includes(cleanK)) { countyName = conf.map1[k]; break; }
+                    }
+                    if (countyName) {
+                        let fuName = conf.map2[countyName] || countyName;
+                        if (conf.validFus && !conf.validFus.includes(fuName)) {
+                            fuName = mingProv === '郑主' ? '清华' : (mingProv === '广南' ? '顺化' : conf.validFus[0]);
+                            countyName = mingProv === '郑主' ? '乂安' : (mingProv === '广南' ? '广平' : Object.keys(conf.map2).find(k => conf.map2[k] === fuName) || countyName);
+                        }
+                        let newF = JSON.parse(JSON.stringify(f));
+                        newF.properties._fu = fuName;
+                        newF.properties.name = countyName;
                         mappedFeatures.push(newF);
                     } else {
-                        unmappedFeatures.push(newF);
+                        unmappedFeatures.push(JSON.parse(JSON.stringify(f)));
                     }
                 }
             });
 
-            // 【真正的空间离近原则】：针对漏网的、现代拆分的微小区域
-            // 绝不乱起名字，也绝不跨区乱认大哥产生飞地。
-            // 算法会计算这个未知碎片的中心点，找到离它【物理距离最近】的一个已知明代区域，自动并入。
-            // 这在数学层面 100% 保证绝对不会有飞地，也绝对不会有假名和重名碎片。
+            // 物理吸附（无缝处理离岛或未匹配区划）
             unmappedFeatures.forEach(uf => {
                 if (mappedFeatures.length > 0) {
-                    let closestName = mappedFeatures[0].properties.name;
+                    let closestF = mappedFeatures[0];
                     let minD = Infinity;
-                    
                     mappedFeatures.forEach(mf => {
                         let dx = uf.properties._center[0] - mf.properties._center[0];
                         let dy = uf.properties._center[1] - mf.properties._center[1];
-                        let d = dx * dx + dy * dy; // 计算几何中心欧式距离的平方
-                        
-                        if (d < minD) {
-                            minD = d;
-                            closestName = mf.properties.name;
-                        }
+                        let d = dx*dx + dy*dy;
+                        if (d < minD) { minD = d; closestF = mf; }
                     });
-                    
-                    // 继承离它最近的邻居的名字，由于物理上相邻，Echarts渲染时将无缝融合为同一块
-                    uf.properties.name = closestName; 
+                    uf.properties._fu = closestF.properties._fu;
+                    uf.properties.name = closestF.properties.name;
                 } else {
-                    // 极端兜底（只在当前道没有任何字典匹配时发生，实际已不可能触发）
-                    const safeDaoFallback = {
-                        '京畿道': '汉城府', '平安道': '平壤府', '咸镜道': '咸兴府', '黄海道': '海州牧',
-                        '江原道': '江陵大都护府', '忠清道': '公州牧', '庆尚道': '庆州府', '全罗道': '全州府'
-                    };
-                    uf.properties.name = safeDaoFallback[mingFu] || '未知区域';
+                    uf.properties._fu = mingFu;
+                    let fallbackCounty;
+                    if (conf.map2) {
+                        fallbackCounty = Object.keys(conf.map2).find(k => conf.map2[k] === mingFu) || Object.keys(conf.map1)[0];
+                    } else {
+                        const safeDaoFallback = {
+                            '京畿道': '汉城府', '平安道': '平壤府', '咸镜道': '咸兴府', '黄海道': '海州牧',
+                            '江原道': '江陵大都护府', '忠清道': '公州牧', '庆尚道': '庆州府', '全罗道': '全州府'
+                        };
+                        fallbackCounty = safeDaoFallback[mingFu] || '未知区域';
+                    }
+                    uf.properties.name = fallbackCounty;
+                }
+                mappedFeatures.push(uf);
+            });
+
+            // 最后根据传入的目标府组装地图块
+            mappedFeatures.forEach(f => {
+                if (f.properties._fu === mingFu) {
+                    let cName = f.properties.name;
+                    if (!countyMap[cName]) countyMap[cName] = [];
+                    countyMap[cName].push(f);
                 }
             });
+        }
 
-            // 统一根据 name 将碎片打包装箱，供外部 Echarts 进行 MultiPolygon 平滑渲染
-            [...mappedFeatures, ...unmappedFeatures].forEach(f => {
-                let finalName = f.properties.name;
-                if (!countyMap[finalName]) countyMap[finalName] = [];
-                countyMap[finalName].push(f);
-            });
-        };
+        const features = [];
+        // 调用增强版的 Turf 合并逻辑，剥除残留的内部区县线孔洞
+        for (const cName of Object.keys(countyMap)) {
+            const mergedFeat = await mergeFeaturesWithTurf(countyMap[cName], cName);
+            features.push(mergedFeat);
+        }
+        return { type: 'FeatureCollection', features };
+    }
 
 
+    const genericForeignCodesCounty = {
+        '莫卧儿': ['IND', 'PAK', 'BGD'], 
+        '澜沧': ['LAO'], '暹罗': ['THA']
+    };
 
-
-        processKoreaLevel2(korGeo);
-        processKoreaLevel2(prkGeo);
-
-        const mergedFeatures = [];
-        Object.keys(countyMap).forEach(cName => {
-            const feats = countyMap[cName];
-            if (feats.length === 1) {
-                mergedFeatures.push(feats[0]);
-            } else {
-                const base = feats[0];
-                const all = [];
-                feats.forEach(f => {
-                    if (f.geometry.type === 'Polygon') {
-                        all.push(f.geometry.coordinates);
-                    } else if (f.geometry.type === 'MultiPolygon') {
-                        f.geometry.coordinates.forEach(c => all.push(c));
+    if (genericForeignCodesCounty[mingProv]) {
+        const codes = genericForeignCodesCounty[mingProv];
+        let features = [];
+        for (let code of codes) {
+            const geoData = await fetchGeoJSON(`${code}_2`); 
+            if (geoData && geoData.features) {
+                geoData.features.forEach(f => {
+                    let prefName = f.properties.NL_NAME_1 || f.properties.NAME_1 || '未知区域';
+                    if (prefName === mingFu) {
+                        let newF = JSON.parse(JSON.stringify(f));
+                        let countyName = newF.properties.NL_NAME_2 || newF.properties.NAME_2 || newF.properties.NAME_1;
+                        newF.properties.name = countyName;
+                        features.push(newF);
                     }
                 });
-                base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
-                mergedFeatures.push(base);
             }
-        });
-
-        return { type: 'FeatureCollection', features: mergedFeatures };
+        }
+        return { type: 'FeatureCollection', features: features };
     }
     // =============================================================
 
-    // =============================================================
+
 
     if (!mingCountySearchIndex) buildCountyIndex();
     let modernProvs = Object.keys(modernToMingProvince).filter(k => modernToMingProvince[k] === mingProv);
+
     
     // ==== 跨省飞地提取逻辑开始 ====
     if (['察哈尔', '土默特', '朵颜三卫'].includes(mingProv)) {
@@ -3551,32 +3982,51 @@ async function buildMingCountyGeoJSON(mingProv, mingFu) {
     }
 
     const mergedFeatures = [];
-    Object.keys(countyMap).forEach(cName => {
-        const feats = countyMap[cName];
-        if (feats.length === 1) {
-            const f = feats[0];
-            f.properties.name = cName;
-            mergedFeatures.push(f);
-        } else {
-            const base = feats[0];
-            base.properties.name = cName;
-            const all = [];
-            feats.forEach(f => {
-                if (f.geometry.type === 'Polygon') {
-                    all.push(f.geometry.coordinates);
-                } else if (f.geometry.type === 'MultiPolygon') {
-                    f.geometry.coordinates.forEach(c => all.push(c));
-                }
-            });
-            base.geometry = all.length === 1 ? { type: 'Polygon', coordinates: all[0] } : { type: 'MultiPolygon', coordinates: all };
-            mergedFeatures.push(base);
-        }
-    });
+    // 替换为 for...of 异步循环，调用 Turf 并且清除孔洞
+    for (const cName of Object.keys(countyMap)) {
+        const mergedFeat = await mergeFeaturesWithTurf(countyMap[cName], cName);
+        mergedFeatures.push(mergedFeat);
+    }
 
     return { type: 'FeatureCollection', features: mergedFeatures };
 }
 
 
+// ==========================================
+// 天下府州全图后台构建逻辑
+// ==========================================
+let globalNationalPrefectureGeoJSON = null;
+async function getNationalPrefectureGeoJSON(chartInstance) {
+    if (globalNationalPrefectureGeoJSON) return globalNationalPrefectureGeoJSON;
+    
+    if (chartInstance) {
+        chartInstance.showLoading({text:'正在拼合天下府州全图，首次加载需几秒...', color:'#d4af37', maskColor:'rgba(10,14,23,0.8)'});
+    }
+    
+    const allProvs = Object.keys(mingProvinceColors);
+    const features = [];
+    
+    // 分批次并发加载，防止主线程卡死
+    for (let i = 0; i < allProvs.length; i += 5) {
+        const chunk = allProvs.slice(i, i + 5);
+        const results = await Promise.all(chunk.map(async p => {
+            const geo = await buildMingPrefectureGeoJSON(p);
+            if (geo && geo.features) {
+                // 给每个府州打上所属省份的标签，用于后续上色
+                geo.features.forEach(f => f.properties._prov = p);
+            }
+            return geo;
+        }));
+        for (let geo of results) {
+            if (geo && geo.features) features.push(...geo.features);
+        }
+        await new Promise(r => setTimeout(r, 15)); // 短暂休眠让出线程
+    }
+    
+    globalNationalPrefectureGeoJSON = { type: 'FeatureCollection', features };
+    if (chartInstance) chartInstance.hideLoading();
+    return globalNationalPrefectureGeoJSON;
+}
 
 // ==========================================
 // 地图渲染控制
@@ -3622,9 +4072,8 @@ function renderMingNationMap() {
 
     if (mingMapHeroLocation) {
         option.series.push({
-            type: 'scatter', coordinateSystem: 'geo', zlevel: 5,
-            silent: true, // <--- 新增：静默模式，彻底忽略鼠标或手指点击
-            animation: false, 
+            type: 'scatter', coordinateSystem: 'geo', zlevel: 5, silent: true,
+            // 移除冗余动画时间设置，交由全局管控
             data: [{ name: '主角位置', value: mingMapHeroLocation.coord, rawLoc: mingMapHeroLocation.raw }],
             symbolSize: 12, itemStyle: { color: '#e74c3c', borderColor: '#fff', borderWidth: 1.5, shadowBlur: 3, shadowColor: 'rgba(0,0,0,0.8)' },
             label: { show: true, formatter: '主角位置', position: 'right', color: '#fff', fontSize: 12, textBorderColor: '#000', textBorderWidth: 2 },
@@ -3632,9 +4081,10 @@ function renderMingNationMap() {
         });
     }
 
-
-
+    // 【核心修复】：全局关闭实例动画，让红点永远死死粘住底图，消灭一切拖拽脱节与层级乱飞现象
+    option.animation = false;
     mingMapChartInstance.setOption(option, true);
+
     
     mingMapCurrentLevel = 'nation'; 
     mingMapCurrentProvince = null;
@@ -3647,53 +4097,97 @@ function renderMingNationMap() {
 }
 
 
+let mingMapOpenedFus = []; // 新增：保存所有同时展开的府州，支持多选查看
+let mingMapDisplayMode = 'single'; // 新增：控制当前是单层模式(single)还是全景模式(panorama)，默认单层
+
 async function renderMingPrefectureMap(mingName) {
     if (!mingMapChartInstance || !mingMapFrame.contentWindow.echarts) return;
     const echarts = mingMapFrame.contentWindow.echarts;
 
-    mingMapChartInstance.showLoading({text:'加载府州...',color:'#d4af37', maskColor:'rgba(10,14,23,0.8)'});
-    const geoJSON = await buildMingPrefectureGeoJSON(mingName);
-    mingMapChartInstance.hideLoading();
+    let geoJSON;
+    let mapName;
     
-    if (!geoJSON || !geoJSON.features.length) {
-        mingMapChartInstance.setOption({title:{text:'暂无府州边界',left:'center',top:'center',textStyle:{color:'#e8d5a3', fontSize: 16}},backgroundColor:'#0a0e17'});
-        setTimeout(() => {
-            if (mingMapChartInstance) mingMapChartInstance.setOption({title:{text:''}});
-        }, 1500);
-        return;
+    // ================== 数据拉取分支 ==================
+    if (mingMapDisplayMode === 'panorama') {
+        geoJSON = await getNationalPrefectureGeoJSON(mingMapChartInstance);
+        if (!geoJSON || !geoJSON.features.length) return;
+        mapName = 'ming_fu_all';
+    } else {
+        // 单层模式恢复最原始的数据拉取方式
+        mingMapChartInstance.showLoading({text:'加载府州...',color:'#d4af37', maskColor:'rgba(10,14,23,0.8)'});
+        geoJSON = await buildMingPrefectureGeoJSON(mingName);
+        mingMapChartInstance.hideLoading();
+        if (!geoJSON || !geoJSON.features.length) {
+            mingMapChartInstance.setOption({title:{text:'暂无府州边界',left:'center',top:'center',textStyle:{color:'#e8d5a3', fontSize: 16}},backgroundColor:'#0a0e17'});
+            setTimeout(() => { if (mingMapChartInstance) mingMapChartInstance.setOption({title:{text:''}}); }, 1500);
+            return;
+        }
+        mapName = 'ming_fu_' + mingName;
     }
     
-    const mapName = 'ming_fu_'+mingName;
     if (!echarts.getMap(mapName)) {
         echarts.registerMap(mapName, geoJSON);
     }
     
-    let zoomLevel = mingMapPrefectureGeoState?.zoom || 1.2;
-    let targetCenter = mingMapPrefectureGeoState?.center || null; 
-    let highlightRegions = []; // 新增：用于存放目标高亮板块
+    // ================== 缩放与中心点计算 ==================
+    let currentOpt = mingMapChartInstance.getOption();
+    let currentZoom = (currentOpt && currentOpt.geo && currentOpt.geo.length) ? currentOpt.geo[0].zoom : 1.15;
+    let currentCenter = (currentOpt && currentOpt.geo && currentOpt.geo.length) ? currentOpt.geo[0].center : [108, 34];
+    
+    let targetZoom = mingMapPrefectureGeoState?.zoom || Math.max(currentZoom, 1.8);
+    let targetCenter = mingMapPrefectureGeoState?.center || mingProvinceCenters[mingName] || currentCenter; 
 
+    // 如果是单层模式，恢复原始比例和默认居中算法，不强行绑定全景坐标
+    if (mingMapDisplayMode === 'single') {
+        targetZoom = mingMapPrefectureGeoState?.zoom || 1.2;
+        targetCenter = mingMapPrefectureGeoState?.center || null;
+    }
+
+    let highlightRegions = []; 
+
+    // ================== 样式分配分支 ==================
+    if (mingMapDisplayMode === 'panorama') {
+        geoJSON.features.forEach(f => {
+            let provName = f.properties._prov;
+            let provColor = mingProvinceColors[provName] || '#1e2d45';
+            highlightRegions.push({
+                name: f.properties.name,
+                itemStyle: { 
+                    areaColor: provColor, 
+                    borderColor: provName === mingName ? '#e8d5a3' : '#111827', 
+                    borderWidth: provName === mingName ? 1.5 : 0.8
+                },
+                label: { 
+                    show: true, hideOverlap: true,
+                    color: provName === mingName ? '#ffffff' : 'rgba(255,255,255,0.4)', 
+                    fontSize: provName === mingName ? (isMingMobile() ? 12 : 14) : (isMingMobile() ? 8 : 10)
+                }
+            });
+        });
+    }
+
+    // 搜索定位拦截
     if (mingMapSearchTarget && mingMapSearchTarget.province === mingName) {
         targetCenter = [mingMapSearchTarget.lng, mingMapSearchTarget.lat];
-        zoomLevel = 3.5; 
-        
-        // 新增：如果搜索命中府州，则注入金黄色高亮区块配置
+        targetZoom = mingMapDisplayMode === 'panorama' ? 4.5 : 3.5; 
         if (mingMapSearchTarget.fu) {
             highlightRegions.push({
                 name: mingMapSearchTarget.fu,
-                itemStyle: { areaColor: 'rgba(212, 175, 55, 0.5)' }
+                itemStyle: { areaColor: 'rgba(212, 175, 55, 0.6)', borderColor: '#fff', borderWidth: 2 },
+                label: { show: true, color: '#ffffff', fontSize: 14, fontWeight: 'bold' } 
             });
         }
         mingMapSearchTarget = null;
     }
 
-    let seriesData = [ {type:'map',map:mapName,geoIndex:0,silent:false} ]; 
+    let seriesData = [ {type:'map', map:mapName, geoIndex:0, silent:false} ]; 
 
-    // 【修复】：去掉之前强行认"府中心"的错误逻辑，直接使用后台算好的全图统一极高精度坐标
-    if (mingMapHeroLocation && mingMapHeroLocation.prov === mingName) {
+    // 全景模式下，主角无论在哪都始终显示；单层模式下，只在当前聚焦的省份内显示
+    const showHero = mingMapHeroLocation && (mingMapDisplayMode === 'panorama' || mingMapHeroLocation.prov === mingName);
+
+    if (showHero) {
         seriesData.push({
-            type: 'scatter', coordinateSystem: 'geo', zlevel: 5,
-            silent: true, // <--- 新增
-            animation: false, 
+            type: 'scatter', coordinateSystem: 'geo', zlevel: 5, silent: true, 
             data: [{ name: '主角位置', value: mingMapHeroLocation.coord, rawLoc: mingMapHeroLocation.raw }],
             symbolSize: 14, itemStyle: { color: '#e74c3c', borderColor: '#fff', borderWidth: 1.5, shadowBlur: 3, shadowColor: 'rgba(0,0,0,0.8)' },
             label: { show: true, formatter: '主角位置', position: 'right', color: '#fff', fontSize: 13, textBorderColor: '#000', textBorderWidth: 2 },
@@ -3701,26 +4195,34 @@ async function renderMingPrefectureMap(mingName) {
         });
     }
 
+    // ================== Echarts 渲染配置生成 ==================
+    let geoConfig = {
+        map:mapName, roam:true, zoom: targetZoom, center: targetCenter,
+        scaleLimit:{min:0.5, max: isMingMobile() ? 40 : 20}, 
+        emphasis:{label:{color:'#ffffff'}, itemStyle:{areaColor: 'rgba(212, 175, 55, 0.4)'}},
+        regions: highlightRegions 
+    };
 
+    if (mingMapDisplayMode === 'panorama') {
+        geoConfig.label = { show: true, hideOverlap: true, fontSize: isMingMobile() ? 9 : 11, color: 'rgba(255,255,255,0.4)' };
+    } else {
+        // 单层模式恢复原始单层默认底色
+        geoConfig.itemStyle = {areaColor:'#1e2d45',borderColor:'#3a5070',borderWidth:1.2};
+        geoConfig.label = { show: true, hideOverlap: true, color: '#ffffff', fontSize: isMingMobile() ? 12 : 14 };
+    }
 
     mingMapChartInstance.setOption({
+        animation: false, // 【核心修复】：关闭全局动画，根除橡皮筋拖拉延迟感
         backgroundColor:'#0a0e17',
         tooltip:{trigger:'item',backgroundColor:'rgba(20,25,38,0.95)',borderColor:'#d4af37',textStyle:{color:'#e8d5a3'}},
-        geo:{
-            map:mapName,roam:true, zoom: zoomLevel, center: targetCenter,
-            scaleLimit:{min:0.6,max:8},
-            label:{show:true,color:'#ffffff',fontSize:10}, 
-            // 同步第三层样式：鼠标悬停的 emphasis 高亮色统一设定
-            emphasis:{label:{color:'#ffffff'}, itemStyle:{areaColor: 'rgba(212, 175, 55, 0.4)'}},
-            itemStyle:{areaColor:'#1e2d45',borderColor:'#3a5070',borderWidth:1.2},
-            regions: highlightRegions // 将提取的高亮板块注入到 regions 中
-        },
+        geo: geoConfig,
         series: seriesData
-    },true);
+    }, true);
     
     mingMapCurrentLevel = 'province'; 
     mingMapCurrentProvince = mingName;
     mingMapCurrentPrefecture = null;
+    mingMapOpenedFus = []; // 进入省份层时重置展开的府州记录
     
     mingMapFrameDocument.getElementById('breadcrumb').innerHTML = `<span class="crumb" data-action="back-nation">🌏 天下</span><span class="separator" style="color:var(--text-secondary)">›</span><span class="crumb current">📍 ${mingName}</span>`;
     mingMapFrameDocument.getElementById('breadcrumb-wrapper').style.display = 'flex';
@@ -3730,10 +4232,34 @@ async function renderMingPrefectureMap(mingName) {
     backBtn.dataset.action = 'back-nation';
     updateMingLegendProvince(mingName);
 }
+
 // ==========================================
 // 地图右侧面板控制逻辑 (缩放/定位)
 // ==========================================
 function handleMapControlBtn(action) {
+    // 拦截模式切换点击事件
+    if (action === 'toggle-mode') {
+        mingMapDisplayMode = mingMapDisplayMode === 'single' ? 'panorama' : 'single';
+        const btn = mingMapFrameDocument.getElementById('mode-toggle-btn');
+        if (btn) {
+            btn.title = `切换模式(当前:${mingMapDisplayMode === 'single' ? '单层' : '全景'})`;
+            btn.innerText = mingMapDisplayMode === 'single' ? '🗺️' : '🌐';
+            btn.style.color = mingMapDisplayMode === 'single' ? '#8899aa' : '#d4af37';
+        }
+        
+        // 立即刷新当前界面以应用新模式
+        if (mingMapCurrentLevel === 'province' && mingMapCurrentProvince) {
+            renderMingPrefectureMap(mingMapCurrentProvince);
+        } else if (mingMapCurrentLevel === 'prefecture' && mingMapCurrentProvince && mingMapCurrentPrefecture) {
+            // 从全景切回单层时，清除多选，仅保留当前聚焦的府
+            if (mingMapDisplayMode === 'single' && mingMapOpenedFus.length > 1) {
+                mingMapOpenedFus = [{ prov: mingMapCurrentProvince, fu: mingMapCurrentPrefecture }];
+            }
+            renderMingCountyMap(mingMapCurrentProvince, mingMapCurrentPrefecture, 'refresh');
+        }
+        return;
+    }
+
     if (!mingMapChartInstance) return;
     const opt = mingMapChartInstance.getOption();
     if (!opt || !opt.geo || !opt.geo[0]) return;
@@ -3772,32 +4298,139 @@ function handleMapControlBtn(action) {
 
 
 // 第三层：渲染区县级地图
-async function renderMingCountyMap(mingProv, mingFu) {
+async function renderMingCountyMap(mingProv, mingFu, action = 'open') {
     if (!mingMapChartInstance || !mingMapFrame.contentWindow.echarts) return;
     const echarts = mingMapFrame.contentWindow.echarts;
 
-    mingMapChartInstance.showLoading({text:`加载 ${mingFu} 区县...`,color:'#d4af37', maskColor:'rgba(10,14,23,0.8)'});
-    const geoJSON = await buildMingCountyGeoJSON(mingProv, mingFu);
-    mingMapChartInstance.hideLoading();
+    if (action === 'open') {
+        const existingIdx = mingMapOpenedFus.findIndex(item => item.prov === mingProv && item.fu === mingFu);
+        if (existingIdx < 0) {
+            // 单层模式下不支持多选，打开新府前自动清空之前的记录
+            if (mingMapDisplayMode === 'single') mingMapOpenedFus = [];
+            mingMapOpenedFus.push({ prov: mingProv, fu: mingFu });
+        }
+    }
 
-    if (!geoJSON || !geoJSON.features.length) {
-        mingMapChartInstance.setOption({title:{text:'暂无该府区县数据',left:'center',top:'center',textStyle:{color:'#e8d5a3', fontSize: 16}},backgroundColor:'#0a0e17'});
-        setTimeout(() => { if (mingMapChartInstance) mingMapChartInstance.setOption({title:{text:''}}); }, 1500);
+    if (mingMapOpenedFus.length === 0) {
+        renderMingPrefectureMap(mingMapCurrentProvince || mingProv);
         return;
     }
 
-    const mapName = `ming_county_${mingProv}_${mingFu}`;
-    if (!echarts.getMap(mapName)) {
-        echarts.registerMap(mapName, geoJSON);
+    mingMapChartInstance.showLoading({text:`加载区县数据...`,color:'#d4af37', maskColor:'rgba(10,14,23,0.8)'});
+    
+    let countyFeatures = [];
+    for (let item of mingMapOpenedFus) {
+        const cGeo = await buildMingCountyGeoJSON(item.prov, item.fu);
+        if (cGeo && cGeo.features) {
+            cGeo.features.forEach(f => f.properties._prov = item.prov);
+            countyFeatures.push(...cGeo.features);
+        }
+    }
+    
+    let combinedGeoJSON;
+    let bgFeatures = [];
+    
+    // ================== 数据拼合分支 ==================
+    if (mingMapDisplayMode === 'panorama') {
+        const nationalPrefGeoJSON = await getNationalPrefectureGeoJSON(null);
+        bgFeatures = nationalPrefGeoJSON.features.filter(f => {
+            return !mingMapOpenedFus.some(item => item.fu === f.properties.name && item.prov === f.properties._prov);
+        });
+        combinedGeoJSON = { type: 'FeatureCollection', features: [...bgFeatures, ...countyFeatures] };
+    } else {
+        // 单层模式：彻底抛弃背景底层，只保留当前展开的府县
+        if (!countyFeatures.length) {
+            mingMapChartInstance.hideLoading();
+            mingMapChartInstance.setOption({title:{text:'暂无该府区县数据',left:'center',top:'center',textStyle:{color:'#e8d5a3', fontSize: 16}},backgroundColor:'#0a0e17'});
+            setTimeout(() => { if (mingMapChartInstance) mingMapChartInstance.setOption({title:{text:''}}); }, 1500);
+            return;
+        }
+        combinedGeoJSON = { type: 'FeatureCollection', features: countyFeatures };
     }
 
-    let seriesData = [ {type:'map',map:mapName,geoIndex:0,silent:true} ];
+    mingMapChartInstance.hideLoading();
 
-    if (mingMapHeroLocation && mingMapHeroLocation.prov === mingProv && mingMapHeroLocation.fu === mingFu) {
+    const mapName = `ming_county_ctx_${Date.now()}`;
+    echarts.registerMap(mapName, combinedGeoJSON);
+
+    let currentOpt = mingMapChartInstance.getOption();
+    let currentZoom = (currentOpt && currentOpt.geo && currentOpt.geo.length) ? currentOpt.geo[0].zoom : 1.8;
+    let currentCenter = (currentOpt && currentOpt.geo && currentOpt.geo.length) ? currentOpt.geo[0].center : [108, 34];
+
+    let targetZoom = Math.max(currentZoom, 2.5); 
+    let targetCenter = currentCenter; 
+
+    let highlightRegions = [];
+
+    // ================== 样式分配分支 ==================
+    if (mingMapDisplayMode === 'panorama') {
+        bgFeatures.forEach(f => {
+            let provName = f.properties._prov;
+            let provColor = mingProvinceColors[provName] || '#1e2d45';
+            let isSameProv = mingMapOpenedFus.some(item => item.prov === provName);
+            highlightRegions.push({
+                name: f.properties.name,
+                itemStyle: { 
+                    areaColor: provColor, opacity: isSameProv ? 0.9 : 0.6, 
+                    borderColor: '#111827', borderWidth: 0.8
+                },
+                label: { show: true, hideOverlap: true, color: 'rgba(255,255,255,0.3)', fontSize: isMingMobile() ? 8 : 10 }
+            });
+        });
+        countyFeatures.forEach(f => {
+            let provColor = mingProvinceColors[f.properties._prov] || '#1e2d45';
+            highlightRegions.push({
+                name: f.properties.name,
+                itemStyle: { areaColor: provColor, borderColor: '#e8d5a3', borderWidth: 1.5 },
+                label: { show: true, hideOverlap: true, color: '#ffffff', fontSize: isMingMobile() ? 10 : 14 } 
+            });
+        });
+    }
+
+    if (mingMapSearchTarget && mingMapSearchTarget.level === 'prefecture') {
+        const targetCounty = mingMapSearchTarget.county;
+        if (targetCounty) {
+            let targetFeature = countyFeatures.find(x => x.properties.name === targetCounty);
+            if (targetFeature) {
+                let exactCenter = getFeatureCenter(targetFeature);
+                if (exactCenter) {
+                    targetCenter = exactCenter;
+                    targetZoom = 5.0; 
+                    highlightRegions.push({
+                        name: targetCounty,
+                        itemStyle: { areaColor: 'rgba(212, 175, 55, 0.6)', borderColor: '#fff', borderWidth: 2 },
+                        label: { show: true, hideOverlap: true, color: '#ffffff', fontSize: isMingMobile() ? 13 : 16, fontWeight: 'bold' }
+                    });
+                }
+            }
+        }
+        mingMapSearchTarget = null; 
+    } else if (action === 'open') {
+        if (mingMapDisplayMode === 'panorama') {
+            const nationalPrefGeoJSON = await getNationalPrefectureGeoJSON(null);
+            let targetPrefFeature = nationalPrefGeoJSON.features.find(f => f.properties.name === mingFu && f.properties._prov === mingProv);
+            if (targetPrefFeature) {
+                let prefCenter = getFeatureCenter(targetPrefFeature);
+                if (prefCenter) targetCenter = prefCenter;
+            }
+        } else {
+            // 单层模式：不用强行定住全景座标，直接回到 1.2 默认居中显示整个单府
+            targetCenter = null;
+            targetZoom = 1.2;
+        }
+    }
+
+    let seriesData = [ {type:'map', map:mapName, geoIndex:0, silent:false} ];
+
+    // 全景模式下，主角无论在哪都始终显示；单层模式下，只有主角在当前展开的府州内才显示
+    const showHero = mingMapHeroLocation && (
+        mingMapDisplayMode === 'panorama' || 
+        mingMapOpenedFus.some(item => item.prov === mingMapHeroLocation.prov && item.fu === mingMapHeroLocation.fu)
+    );
+
+    if (showHero) {
         seriesData.push({
-            type: 'scatter', coordinateSystem: 'geo', zlevel: 5,
-            silent: true, // <--- 新增
-            animation: false,
+            type: 'scatter', coordinateSystem: 'geo', zlevel: 5, silent: true, 
             data: [{ name: '主角位置', value: mingMapHeroLocation.coord, rawLoc: mingMapHeroLocation.raw }],
             symbolSize: 16, itemStyle: { color: '#e74c3c', borderColor: '#fff', borderWidth: 2, shadowBlur: 3, shadowColor: 'rgba(0,0,0,0.8)' },
             label: { show: true, formatter: '主角位置', position: 'top', color: '#fff', fontSize: 14, textBorderColor: '#000', textBorderWidth: 2 },
@@ -3805,68 +4438,43 @@ async function renderMingCountyMap(mingProv, mingFu) {
         });
     }
 
+    // ================== Echarts 渲染配置生成 ==================
+    let geoConfig = {
+        map:mapName, roam:true, zoom: targetZoom, center: targetCenter,
+        scaleLimit:{min:0.5, max: isMingMobile() ? 80 : 35}, 
+        emphasis:{label:{color:'#ffffff'}, itemStyle:{areaColor: 'rgba(212, 175, 55, 0.4)'}},
+        regions: highlightRegions 
+    };
 
-
-    // 【新增核心功能】：搜索下钻时的视口定位与金黄色高亮
-    let targetZoom = 1.2;
-    let targetCenter = null;
-    let highlightRegions = [];
-
-    if (mingMapSearchTarget && mingMapSearchTarget.level === 'prefecture') {
-        const targetCounty = mingMapSearchTarget.county;
-        if (targetCounty) {
-            // 在地图数据中找到这个县，计算中心点
-            let targetFeature = geoJSON.features.find(x => x.properties.name === targetCounty);
-            if (targetFeature) {
-                let exactCenter = getFeatureCenter(targetFeature);
-                if (exactCenter) {
-                    targetCenter = exactCenter;
-                    targetZoom = 3; // 放大到 3倍
-                    // 注入静态高亮区块配置
-                    highlightRegions.push({
-                        name: targetCounty,
-                        itemStyle: { areaColor: 'rgba(212, 175, 55, 0.5)' }
-                    });
-                }
-            }
-        }
-        mingMapSearchTarget = null; // 处理完清除状态
+    if (mingMapDisplayMode === 'panorama') {
+        geoConfig.label = { show: true, hideOverlap: true, fontSize: isMingMobile() ? 9 : 12, color: 'rgba(255,255,255,0.6)' };
+    } else {
+        // 单层模式恢复原始单层默认底色
+        geoConfig.itemStyle = {areaColor:'#1a2740',borderColor:'#3a5070',borderWidth:1};
+        geoConfig.label = { show: true, hideOverlap: true, color: '#ffffff', fontSize: isMingMobile() ? 12 : 15 };
     }
 
     mingMapChartInstance.setOption({
+        animation: false, // 【核心修复】：全局禁用动画，解决散点拖拽漂移的根本方案
         backgroundColor:'#0a0e17',
         tooltip:{trigger:'item',backgroundColor:'rgba(20,25,38,0.95)',borderColor:'#d4af37',textStyle:{color:'#e8d5a3'}},
-        geo:{
-            map:mapName,roam:true, zoom: targetZoom, center: targetCenter,
-            scaleLimit:{min:0.5,max:10},
-            label:{show:true,color:'#ffffff',fontSize:10}, 
-            emphasis:{label:{color:'#ffffff'}, itemStyle:{areaColor: 'rgba(212, 175, 55, 0.4)'}},
-            itemStyle:{areaColor:'#1a2740',borderColor:'#3a5070',borderWidth:1},
-            regions: highlightRegions // 注入高亮板块
-        },
+        geo: geoConfig,
         series: seriesData
-    },true);
+    }, true);
 
     mingMapCurrentLevel = 'prefecture'; 
     mingMapCurrentProvince = mingProv; 
-    mingMapCurrentPrefecture = mingFu;
+    mingMapCurrentPrefecture = mingFu; 
     
-    // 强制解除第一层隐藏状态，保证跨级搜索跳转时面包屑显示正常
     mingMapFrameDocument.getElementById('breadcrumb-wrapper').style.display = 'flex';
+    let titleStr = mingMapOpenedFus.length > 1 ? `已展开 ${mingMapOpenedFus.length} 府` : mingFu;
     
-    mingMapFrameDocument.getElementById('breadcrumb').innerHTML = `<span class="crumb" data-action="back-nation">🌏 天下</span><span class="separator" style="color:var(--text-secondary)">›</span><span class="crumb" data-action="back-province">📍 ${mingProv}</span><span class="separator" style="color:var(--text-secondary)">›</span><span class="crumb current">🏘️ ${mingFu}</span>`;
+    mingMapFrameDocument.getElementById('breadcrumb').innerHTML = `<span class="crumb" data-action="back-nation">🌏 天下</span><span class="separator" style="color:var(--text-secondary)">›</span><span class="crumb" data-action="back-province">📍 ${mingProv}</span><span class="separator" style="color:var(--text-secondary)">›</span><span class="crumb current">🏘️ ${titleStr}</span>`;
     
     const backBtn = mingMapFrameDocument.getElementById('back-btn');
     backBtn.style.display = 'flex';
     backBtn.dataset.action = 'back-province';
 }
-
-
-
-
-
-
-
 
 
 function updateMingLegendNation() {
@@ -3903,33 +4511,104 @@ async function initMingEChartsMap() {
 
     mingMapChartInstance = win.echarts.init(mapChartEl);
     
+    // 清除可能重复绑定的事件
+    mingMapChartInstance.off('click');
+    mingMapChartInstance.off('dblclick');
+
+    // 记录时间与点击区域，用于手动判定双击（兼容移动端）
+    let lastClickTime = 0;
+    let lastClickName = '';
+
+    // 合并单击与双击事件：利用时间差精确处理
     mingMapChartInstance.on('click', (params) => {
-        // 拦截：如果是主角位置，或者是无效点击，直接无视
         if (!params.name || params.name === '主角位置') return;
         
-        // 第一层：点击省份下钻到府州
+        const currentTime = new Date().getTime();
+        // 如果两次点击间隔在 400 毫秒以内，并且点击的是同一个地方，则判定为双击
+        const isDoubleClick = (currentTime - lastClickTime < 400) && (lastClickName === params.name);
+        lastClickTime = currentTime;
+        lastClickName = params.name;
+
+        const isProvinceName = !!mingProvinceColors[params.name];
+        let targetFu = null;
+        let targetProv = getMingProvOfFu(params.name);
+        
+        if (targetProv) {
+            targetFu = params.name;
+        } else if (!isProvinceName) {
+            if (!mingCountySearchIndex) buildCountyIndex();
+            if (mingCountySearchIndex && mingCountySearchIndex[params.name]) {
+                targetProv = mingCountySearchIndex[params.name][0].prov;
+                targetFu = mingCountySearchIndex[params.name][0].fu;
+            }
+        }
+
+        // ==============================
+        // 1. 处理双击动作 (仅执行收起逻辑)
+        // ==============================
+        if (isDoubleClick) {
+            if (isProvinceName) return; 
+            
+            if (mingMapCurrentLevel === 'prefecture' && targetProv && targetFu) {
+                const existingIdx = mingMapOpenedFus.findIndex(item => item.prov === targetProv && item.fu === targetFu);
+                if (existingIdx >= 0) {
+                    // 核心：从数组中剔除，并触发刷新模式（不改变视角）
+                    mingMapOpenedFus.splice(existingIdx, 1);
+                    renderMingCountyMap(mingMapCurrentProvince || targetProv, '', 'refresh');
+                }
+            }
+            return; // 双击处理完毕，直接终止，不再执行下方的单击逻辑
+        }
+
+        // ==============================
+        // 2. 处理单击动作 (打开、跳转、清除高亮)
+        // ==============================
         if (mingMapCurrentLevel === 'nation') {
-            const opt = mingMapChartInstance.getOption();
-            if (opt && opt.geo && opt.geo[0]) mingMapGeoState = { center: opt.geo[0].center, zoom: opt.geo[0].zoom };
-            renderMingPrefectureMap(params.name);
+            if (isProvinceName) {
+                const opt = mingMapChartInstance.getOption();
+                if (opt && opt.geo && opt.geo[0]) mingMapGeoState = { center: opt.geo[0].center, zoom: opt.geo[0].zoom };
+                renderMingPrefectureMap(params.name);
+            }
             return;
         }
         
-        // 第二层：点击府州下钻到区县
-        if (mingMapCurrentLevel === 'province') {
-            const opt = mingMapChartInstance.getOption();
-            if (opt && opt.geo && opt.geo[0]) mingMapPrefectureGeoState = { center: opt.geo[0].center, zoom: opt.geo[0].zoom };
-            renderMingCountyMap(mingMapCurrentProvince, params.name);
-            return;
-        }
-
-        // 第三层：点击区县时，取消搜索带来的固定高亮，恢复默认悬浮状态
-        if (mingMapCurrentLevel === 'prefecture') {
-            mingMapChartInstance.setOption({
-                geo: { regions: [] }
-            });
+        if (mingMapCurrentLevel === 'province' || mingMapCurrentLevel === 'prefecture') {
+            if (isProvinceName && !targetFu) {
+                renderMingPrefectureMap(params.name);
+                return;
+            }
+            
+            if (targetProv && targetFu && targetFu !== '琉球国') {
+                const isOpen = mingMapOpenedFus.some(item => item.prov === targetProv && item.fu === targetFu);
+                if (!isOpen) {
+                    if (mingMapCurrentLevel === 'province') {
+                        const opt = mingMapChartInstance.getOption();
+                        if (opt && opt.geo && opt.geo[0]) mingMapPrefectureGeoState = { center: opt.geo[0].center, zoom: opt.geo[0].zoom };
+                    }
+                    // 单击触发打开
+                    renderMingCountyMap(targetProv, targetFu, 'open');
+                } else {
+                    // 已经打开的地方，单击只清除金黄色搜索高亮，不自动收起
+                    const opt = mingMapChartInstance.getOption();
+                    if (opt && opt.geo && opt.geo[0]) {
+                        let currentRegions = opt.geo[0].regions || [];
+                        currentRegions = currentRegions.filter(r => !r.itemStyle || r.itemStyle.areaColor !== 'rgba(212, 175, 55, 0.6)');
+                        mingMapChartInstance.setOption({ geo: { regions: currentRegions } });
+                    }
+                }
+            } else {
+                // 无主之地，取消搜索高亮
+                const opt = mingMapChartInstance.getOption();
+                if (opt && opt.geo && opt.geo[0]) {
+                    let currentRegions = opt.geo[0].regions || [];
+                    currentRegions = currentRegions.filter(r => !r.itemStyle || r.itemStyle.areaColor !== 'rgba(212, 175, 55, 0.6)');
+                    mingMapChartInstance.setOption({ geo: { regions: currentRegions } });
+                }
+            }
         }
     });
+
+
     
     if (win.WORLD_1629) {
         if (mingMapCurrentLevel === 'prefecture' && mingMapCurrentPrefecture) {
@@ -3953,7 +4632,7 @@ function loadMingIframeScripts() {
     scriptEcharts.src = 'https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js';
     scriptEcharts.onload = () => {
         const scriptWorld = doc.createElement('script');
-        scriptWorld.src = 'https://testingcf.jsdelivr.net/gh/GooYi-C/History@main/world_1629.js';
+        scriptWorld.src = 'https://cdn.jsdelivr.net/gh/fairta/map@main/map/world_1629.js';
         scriptWorld.onload = () => {
             mingMapEchartsReady = true;
             if (mingMapIsOpen) initMingEChartsMap();
@@ -4021,6 +4700,23 @@ function bindMingFrameEvents() {
             return;
         }
 
+        // 处理日志弹窗逻辑 (点击按钮打开 / 点击关闭按钮或蒙层黑边关闭)
+        if (target.closest('[data-action="show-update"]')) {
+            const modal = mingMapFrameDocument.getElementById('update-modal');
+            if (modal) modal.style.display = 'flex';
+            
+            // 点击后消除红点，并记录当前版本号到本地缓存
+            saveMingStorage('last_seen_version', MING_MAP_VERSION);
+            const dot = mingMapFrameDocument.getElementById('update-red-dot');
+            if (dot) dot.style.display = 'none';
+            return;
+        }
+        if (target.closest('[data-action="close-update"]') || target.id === 'update-modal') {
+            const modal = mingMapFrameDocument.getElementById('update-modal');
+            if (modal) modal.style.display = 'none';
+            return;
+        }
+
         // 面包屑/返回按钮：回退逻辑
         if (target.closest('[data-action="back-nation"]')) {
             renderMingNationMap();
@@ -4070,6 +4766,17 @@ function bindMingFrameEvents() {
     body.addEventListener('click', clickHandler);
     body.addEventListener('keydown', keyHandler);
     body.addEventListener('input', inputHandler);
+
+    // 【新增】：初始化时检测版本号，决定是否显示红点
+    const lastSeenVersion = loadMingStorage('last_seen_version', '');
+    const updateRedDot = mingMapFrameDocument.getElementById('update-red-dot');
+    if (updateRedDot) {
+        if (lastSeenVersion !== MING_MAP_VERSION) {
+            updateRedDot.style.display = 'block'; // 有新版本，显示红点
+        } else {
+            updateRedDot.style.display = 'none';
+        }
+    }
 }
 
 
