@@ -2235,6 +2235,16 @@ function parseHeroLocation(locStr) {
 }
 
 async function mingMapSyncHeroLocation() {
+    // 【核心修复】：利用现有的 2.5 秒定时器，实时检测红点缓存状态
+    // 这样只要面板处于打开状态，红点就能跨页面实时刷新，无需重新开关地图
+    if (mingMapFrameDocument) {
+        const lastSeenVersion = loadMingStorage('last_seen_version', '');
+        const updateRedDot = mingMapFrameDocument.getElementById('update-red-dot');
+        if (updateRedDot) {
+            updateRedDot.style.display = (lastSeenVersion !== MING_MAP_VERSION) ? 'block' : 'none';
+        }
+    }
+
     const parentWindow = window.parent ?? window;
     const mvu = parentWindow.Mvu ?? globalThis.Mvu;
     if (!mvu?.getMvuData) return;
@@ -4766,17 +4776,6 @@ function bindMingFrameEvents() {
     body.addEventListener('click', clickHandler);
     body.addEventListener('keydown', keyHandler);
     body.addEventListener('input', inputHandler);
-
-    // 【新增】：初始化时检测版本号，决定是否显示红点
-    const lastSeenVersion = loadMingStorage('last_seen_version', '');
-    const updateRedDot = mingMapFrameDocument.getElementById('update-red-dot');
-    if (updateRedDot) {
-        if (lastSeenVersion !== MING_MAP_VERSION) {
-            updateRedDot.style.display = 'block'; // 有新版本，显示红点
-        } else {
-            updateRedDot.style.display = 'none';
-        }
-    }
 }
 
 
