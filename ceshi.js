@@ -3,7 +3,7 @@ const LAMP_ID = 'ming-map-lamp';
 const STORAGE_PREFIX = 'ming-map:';
 
 // 每次更新地图内容后，修改此版本号（如变为 v1.1、v1.2），即可重新触发玩家界面上的红点提示
-const MING_MAP_VERSION = 'v1.0'; 
+const MING_MAP_VERSION = 'v1.2'; 
 
 // ==========================================
 // 地图核心数据常量与映射
